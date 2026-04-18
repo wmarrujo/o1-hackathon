@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Slide Decks</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 80px auto; }
+    h1 { margin-bottom: 24px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 12px 0; }
+    a { font-size: 1.2rem; color: #4a90e2; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Slide Decks</h1>
+  <ul id="decks"></ul>
+  <script>
+    fetch('/api/decks')
+      .then(r => r.json())
+      .then(decks => {
+        const ul = document.getElementById('decks');
+        if (!decks.length) {
+          ul.innerHTML = '<li>No decks found. Add a .md file to the <code>decks/</code> folder.</li>';
+          return;
+        }
+        decks.forEach(d => {
+          ul.innerHTML += `<li><a href="/present.html?deck=${d.name}">${d.name}</a></li>`;
+        });
+      });
+  </script>
+</body>
+</html>

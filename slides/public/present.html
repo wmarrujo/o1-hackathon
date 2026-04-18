@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Presentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+  <style>
+    .back-link {
+      position: fixed;
+      top: 12px;
+      left: 16px;
+      z-index: 9999;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+    .back-link:hover { color: white; }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="/">← all decks</a>
+  <div class="reveal">
+    <div class="slides">
+      <section data-markdown id="md-target">
+        <textarea data-template id="md-content"></textarea>
+      </section>
+    </div>
+  </div>
+  <script type="module">
+    import Reveal from 'https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.esm.js';
+    import Markdown from 'https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/markdown/markdown.esm.js';
+    import Highlight from 'https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.esm.js';
+    import Notes from 'https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.esm.js';
+
+    const params = new URLSearchParams(location.search);
+    const deck = params.get('deck');
+    if (!deck) { document.body.innerHTML = '<p>No deck specified.</p>'; throw new Error(); }
+
+    document.title = deck;
+
+    const res = await fetch(`/api/decks/${deck}`);
+    if (!res.ok) { document.body.innerHTML = `<p>Deck "${deck}" not found.</p>`; throw new Error(); }
+    const md = await res.text();
+    document.getElementById('md-content').textContent = md;
+
+    await Reveal.initialize({
+      hash: true,
+      plugins: [Markdown, Highlight, Notes],
+    });
+  </script>
+</body>
+</html>
