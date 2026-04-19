@@ -33,7 +33,7 @@
 	}
 </script>
 
-<div class="flex h-screen flex-col bg-background">
+<div class="flex h-dvh flex-col bg-background">
 	<!-- Header -->
 	<header class="sticky top-0 z-10 border-b bg-card shadow-sm">
 		<div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
@@ -92,7 +92,7 @@
 	</div>
 
 	<!-- Bottom tab bar -->
-	<nav class="shrink-0 border-t bg-card">
+	<nav class="shrink-0 border-t bg-card pb-[env(safe-area-inset-bottom)]">
 		<div class="mx-auto max-w-3xl">
 			<div class="flex h-16 w-full px-2">
 				{#if isCaregiver}
