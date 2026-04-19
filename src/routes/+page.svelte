@@ -170,7 +170,7 @@
 			<Button variant="ghost" href="/login" class="text-muted-foreground hover:text-foreground">
 				Log In
 			</Button>
-			<Button href="/login?signup=true">Sign Up</Button>
+			<Button href="/signup">Sign Up</Button>
 		</div>
 	</div>
 </nav>
@@ -188,7 +188,7 @@
 			informed so your loved one gets consistent, accountable care.
 		</p>
 		<div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-			<Button size="lg" href="/login?signup=true" class="px-10 py-6 text-base">Get Started</Button>
+			<Button size="lg" href="/signup" class="px-10 py-6 text-base">Get Started</Button>
 			<Button size="lg" variant="outline" href="/login" class="px-10 py-6 text-base">Log In</Button>
 		</div>
 	</div>
@@ -408,7 +408,7 @@
 		<p class="mb-10 text-lg text-muted-foreground">
 			Get started in minutes. Invite your first caregiver today.
 		</p>
-		<Button size="lg" href="/login?signup=true" class="px-12 py-6 text-base">Get Started</Button>
+		<Button size="lg" href="/signup" class="px-12 py-6 text-base">Get Started</Button>
 	</div>
 </section>
 
@@ -425,7 +425,7 @@
 		<div class="flex gap-4">
 			<a href="/pricing" class="transition-colors hover:text-foreground">Pricing</a>
 			<a href="/login" class="transition-colors hover:text-foreground">Log In</a>
-			<a href="/login?signup=true" class="transition-colors hover:text-foreground">Sign Up</a>
+			<a href="/signup" class="transition-colors hover:text-foreground">Sign Up</a>
 		</div>
 	</div>
 </footer>
