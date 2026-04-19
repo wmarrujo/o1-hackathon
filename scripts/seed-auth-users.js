@@ -126,9 +126,9 @@ const PATIENT_ID_2 = '00000000-0000-0000-0000-000000000011';
 			ics_uid: 'morning-shift-joyce-2026@salus',
 			title: 'Morning Care Shift',
 			event_type: 'shift',
-			dtstart: '2026-04-18 08:00:00+00',
-			dtend: '2026-04-18 12:00:00+00',
-			rrule: 'FREQ=DAILY',
+			dtstart: '2026-04-18 12:00:00+00',
+			dtend: '2026-04-18 16:00:00+00',
+			rrule: null,
 			status: 'CONFIRMED',
 			additional_notes: 'Check blood glucose and BP first thing. Joyce prefers NPR on the radio during breakfast.',
 		},
@@ -139,9 +139,9 @@ const PATIENT_ID_2 = '00000000-0000-0000-0000-000000000011';
 			ics_uid: 'evening-shift-joyce-2026@salus',
 			title: 'Evening Care Shift',
 			event_type: 'shift',
-			dtstart: '2026-04-18 17:00:00+00',
-			dtend: '2026-04-18 20:00:00+00',
-			rrule: 'FREQ=DAILY',
+			dtstart: '2026-04-18 21:00:00+00',
+			dtend: '2026-04-18 23:00:00+00',
+			rrule: null,
 			status: 'CONFIRMED',
 			additional_notes: 'Joyce tends to be more confused in the evening. Keep lights bright and routine consistent.',
 		},
@@ -271,10 +271,10 @@ const SHIFTS = [
 	// Apr 17 Fri
 	{ id: '00000000-0000-0000-0001-000000000012', title: 'Morning Care Shift', dtstart: '2026-04-17 12:00:00+00', dtend: '2026-04-17 16:00:00+00', assignee: PEGGY,  notes: null },
 	{ id: '00000000-0000-0000-0001-000000000013', title: 'Evening Care Shift', dtstart: '2026-04-17 21:00:00+00', dtend: '2026-04-17 23:00:00+00', assignee: LINDA,  notes: null },
-	// Apr 18 Sat — already in seed.sql (001 = morning, 002 = evening); assignments set below
+	// Apr 18 Sat — already in seed.sql (001 = morning/Dianne, 002 = evening/Linda)
 	// Apr 19 Sun — today
-	{ id: '00000000-0000-0000-0001-000000000014', title: 'Morning Care Shift', dtstart: '2026-04-19 12:00:00+00', dtend: '2026-04-19 16:00:00+00', assignee: DIANNE, notes: 'Sunday routine — Joyce likes hymns on the radio in the morning.' },
-	{ id: '00000000-0000-0000-0001-000000000015', title: 'Evening Care Shift', dtstart: '2026-04-19 21:00:00+00', dtend: '2026-04-19 23:00:00+00', assignee: LINDA,  notes: null },
+	{ id: '00000000-0000-0000-0001-000000000014', title: 'Morning Care Shift', dtstart: '2026-04-19 11:00:00+00', dtend: '2026-04-19 15:00:00+00', assignee: KELSEY, notes: 'Sunday routine — Joyce likes hymns on the radio in the morning.' },
+	{ id: '00000000-0000-0000-0001-000000000015', title: 'Evening Care Shift', dtstart: '2026-04-19 17:00:00+00', dtend: '2026-04-19 20:00:00+00', assignee: LINDA,  notes: null },
 
 	// ── Week of Apr 20 (Mon) – Apr 26 (Sun) — next week ─────────────────────
 	// Apr 20 Mon
@@ -293,11 +293,11 @@ const SHIFTS = [
 	{ id: '00000000-0000-0000-0001-000000000024', title: 'Morning Care Shift', dtstart: '2026-04-24 12:00:00+00', dtend: '2026-04-24 16:00:00+00', assignee: LINDA,  notes: null },
 	{ id: '00000000-0000-0000-0001-000000000025', title: 'Evening Care Shift', dtstart: '2026-04-24 21:00:00+00', dtend: '2026-04-24 23:00:00+00', assignee: PEGGY,  notes: null },
 	// Apr 25 Sat
-	{ id: '00000000-0000-0000-0001-000000000026', title: 'Morning Care Shift', dtstart: '2026-04-25 12:00:00+00', dtend: '2026-04-25 16:00:00+00', assignee: CATHY,  notes: null },
-	{ id: '00000000-0000-0000-0001-000000000027', title: 'Evening Care Shift', dtstart: '2026-04-25 21:00:00+00', dtend: '2026-04-25 23:00:00+00', assignee: KELSEY, notes: null },
+	{ id: '00000000-0000-0000-0001-000000000026', title: 'Morning Care Shift', dtstart: '2026-04-25 12:00:00+00', dtend: '2026-04-25 16:00:00+00', assignee: DIANNE, notes: null },
+	{ id: '00000000-0000-0000-0001-000000000027', title: 'Evening Care Shift', dtstart: '2026-04-25 21:00:00+00', dtend: '2026-04-25 23:00:00+00', assignee: CATHY,  notes: null },
 	// Apr 26 Sun
-	{ id: '00000000-0000-0000-0001-000000000028', title: 'Morning Care Shift', dtstart: '2026-04-26 12:00:00+00', dtend: '2026-04-26 16:00:00+00', assignee: PEGGY,  notes: null },
-	{ id: '00000000-0000-0000-0001-000000000029', title: 'Evening Care Shift', dtstart: '2026-04-26 21:00:00+00', dtend: '2026-04-26 23:00:00+00', assignee: LINDA,  notes: null },
+	{ id: '00000000-0000-0000-0001-000000000028', title: 'Morning Care Shift', dtstart: '2026-04-26 11:00:00+00', dtend: '2026-04-26 15:00:00+00', assignee: KELSEY, notes: null },
+	{ id: '00000000-0000-0000-0001-000000000029', title: 'Evening Care Shift', dtstart: '2026-04-26 17:00:00+00', dtend: '2026-04-26 20:00:00+00', assignee: LINDA,  notes: null },
 ];
 
 const { error: shiftsErr } = await supabase.from('schedule_events').upsert(
@@ -320,7 +320,7 @@ if (shiftsErr) { console.error('schedule_events (shifts):', shiftsErr.message); 
 
 // Assign the seed.sql shifts (001 = morning Apr 18, 002 = evening Apr 18, 003 = Dr. Smith)
 const seedShiftAssignments = [
-	{ id: '00000000-0000-0000-0001-000000000001', assigned_user_id: KELSEY },
+	{ id: '00000000-0000-0000-0001-000000000001', assigned_user_id: DIANNE },
 	{ id: '00000000-0000-0000-0001-000000000002', assigned_user_id: CATHY  },
 	{ id: '00000000-0000-0000-0001-000000000003', assigned_user_id: DIANNE },
 ];
@@ -347,7 +347,7 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 		id: '00000000-0000-0000-0003-000000000002',
 		patient_id: PATIENT_ID,
 		description: 'Call Dr. Smith office to confirm April 22 appointment — (555) 310-4400',
-		due_time: '2026-04-19T12:00:00+00:00',
+		due_time: '2026-04-18T12:00:00+00:00',
 		assignee_id: DIANNE,
 		complete: false,
 		created_by: DIANNE,
@@ -367,11 +367,11 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 		id: '00000000-0000-0000-0003-000000000004',
 		patient_id: PATIENT_ID,
 		description: 'Share updated medication list with caregiver team',
-		due_time: '2026-04-18T09:00:00+00:00',
+		due_time: '2026-04-19T09:00:00+00:00',
 		assignee_id: DIANNE,
 		complete: true,
 		completed_by: DIANNE,
-		completed_at: '2026-04-18T08:45:00+00:00',
+		completed_at: '2026-04-19T08:45:00+00:00',
 		created_by: DIANNE,
 		created_at: '2026-04-15T14:00:00+00:00'
 	},
@@ -469,17 +469,92 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 		id: '00000000-0000-0000-0003-000000000013',
 		patient_id: PATIENT_ID,
 		description: 'Walk with Joyce around the block — 15 min',
-		due_time: '2026-04-18T15:00:00+00:00',
+		due_time: '2026-04-19T15:00:00+00:00',
 		assignee_id: LINDA,
 		complete: true,
 		completed_by: LINDA,
-		completed_at: '2026-04-18T14:50:00+00:00',
+		completed_at: '2026-04-19T14:50:00+00:00',
 		created_by: DIANNE,
-		created_at: '2026-04-18T08:00:00+00:00'
+		created_at: '2026-04-19T08:00:00+00:00'
+	},
+	// ── Arturo Ramos tasks (Linda is sole caregiver + coordinator) ──────────
+	{
+		id: '00000000-0000-0000-0006-000000000001',
+		patient_id: PATIENT_ID_2,
+		description: 'Pick up carbidopa-levodopa refill at Walgreens (Prescription #7712)',
+		due_time: '2026-04-21T17:00:00+00:00',
+		assignee_id: LINDA,
+		complete: false,
+		created_by: LINDA,
+		created_at: '2026-04-18T14:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0006-000000000002',
+		patient_id: PATIENT_ID_2,
+		description: 'Schedule 6-month neurologist follow-up with Dr. Okafor — (555) 881-2034',
+		due_time: '2026-04-22T17:00:00+00:00',
+		assignee_id: LINDA,
+		complete: false,
+		created_by: LINDA,
+		created_at: '2026-04-18T14:05:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0006-000000000003',
+		patient_id: PATIENT_ID_2,
+		description: 'Apply diclofenac gel to both knees — morning and evening',
+		due_time: '2026-04-18T22:00:00+00:00',
+		assignee_id: LINDA,
+		complete: false,
+		created_by: LINDA,
+		created_at: '2026-04-18T11:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0006-000000000004',
+		patient_id: PATIENT_ID_2,
+		description: 'Install non-slip mat in the shower and check bathroom grab bar',
+		due_time: '2026-04-23T17:00:00+00:00',
+		assignee_id: LINDA,
+		complete: false,
+		created_by: LINDA,
+		created_at: '2026-04-17T09:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0006-000000000005',
+		patient_id: PATIENT_ID_2,
+		description: "Grocery run — bananas, yogurt, eggs, soft bread, Arturo's decaf",
+		due_time: '2026-04-20T16:00:00+00:00',
+		assignee_id: LINDA,
+		complete: false,
+		created_by: LINDA,
+		created_at: '2026-04-18T18:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0006-000000000006',
+		patient_id: PATIENT_ID_2,
+		description: "Refill Arturo's weekly pill organizer (Mon–Sun, 3 doses/day)",
+		due_time: '2026-04-19T12:00:00+00:00',
+		assignee_id: LINDA,
+		complete: true,
+		completed_by: LINDA,
+		completed_at: '2026-04-19T11:30:00+00:00',
+		created_by: LINDA,
+		created_at: '2026-04-17T20:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0006-000000000007',
+		patient_id: PATIENT_ID_2,
+		description: 'Drive Arturo to physical therapy session',
+		due_time: '2026-04-17T14:00:00+00:00',
+		assignee_id: LINDA,
+		complete: true,
+		completed_by: LINDA,
+		completed_at: '2026-04-17T15:30:00+00:00',
+		created_by: LINDA,
+		created_at: '2026-04-16T10:00:00+00:00'
 	},
 ], { onConflict: 'id' });
 if (taskErr) { console.error('tasks:', taskErr.message); process.exit(1); }
-console.log('✓ tasks (13 total)');
+console.log('✓ tasks (20 total)');
 
 // ── Notes ──────────────────────────────────────────────────────────────────────
 const { error: noteErr } = await supabase.from('notes').upsert([
