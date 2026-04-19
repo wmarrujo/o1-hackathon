@@ -16,13 +16,11 @@ interface LLMBody {
 
 // What gets returned to the client for the preview page
 export interface LLMPayload {
-  patient_id: string
   task_edits: {
     id: string
     complete: boolean
   }[]
   notes: {
-    patient_id: string
     content: string
     task_id?: string | null
   }[]
@@ -89,14 +87,11 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   const changes: LLMPayload = {
-    patient_id,
     task_edits: (raw.task_edits as Record<string, unknown>[]).map((e) => ({
       id: e.id as string,
       complete: e.complete as boolean,
     })),
-    // Server stamps patient_id onto every note
     notes: (raw.notes as Record<string, unknown>[]).map((n) => ({
-      patient_id,
       content: (n.content as string).trim(),
       ...('task_id' in n && { task_id: (n as Record<string, unknown>).task_id as string | null }),
     })),

@@ -11,7 +11,7 @@
   import Separator from '$lib/components/ui/separator/separator.svelte'
   import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte'
 
-  const changes: LLMPayload | undefined = (page.state as { changes?: LLMPayload }).changes
+  const { changes, patient_id } = page.state as { changes?: LLMPayload; patient_id?: string }
 
   type Task = {
     id: string
@@ -63,7 +63,7 @@
 
       const noteInserts = changes.notes.length > 0
         ? [supabase.from('notes').insert(
-            changes.notes.map((n) => ({ ...n, author_id: user.id }))
+            changes.notes.map((n) => ({ ...n, patient_id, author_id: user.id }))
           )]
         : []
 
