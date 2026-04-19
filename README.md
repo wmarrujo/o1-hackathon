@@ -1,42 +1,84 @@
-# sv
+# o1 Hackathon
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A SvelteKit app with Supabase as the database/auth backend.
 
-## Creating a project
+## Prerequisites
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Node.js 18+
+- Docker (required for local Supabase)
+- [Supabase CLI](https://supabase.com/docs/guides/cli): `npm install -g supabase`
+
+## Local Development
+
+### 1. Install dependencies
 
 ```sh
-# create a new project
-npx sv create my-app
+npm install
 ```
 
-To recreate this project with the same configuration:
+### 2. Set up environment variables
 
 ```sh
-# recreate this project
-npx sv@0.15.1 create --template minimal --types ts --install npm myapp
+cp .env.example .env
 ```
 
-## Developing
+### 3. Start local Supabase
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Make sure Docker is running, then:
+
+```sh
+supabase start
+```
+
+This spins up a local Supabase stack and prints credentials like:
+
+```
+API URL: http://127.0.0.1:54321
+anon key: <local-anon-key>
+```
+
+Update `.env` with those local values:
+
+```env
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=<local-anon-key>
+```
+
+### 4. Apply migrations
+
+```sh
+supabase db reset
+```
+
+This runs all migrations in `supabase/migrations/` against your local database.
+
+### 5. Start the dev server
 
 ```sh
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+The app will be at `http://localhost:5173`.
 
-To create a production version of your app:
+## Pulling schema changes from remote
+
+If the remote database schema has changed:
+
+```sh
+supabase db pull
+```
+
+This generates a new migration file. Commit it and run `supabase db reset` locally to apply.
+
+## Pushing migrations to remote
+
+```sh
+supabase db push
+```
+
+## Building for Production
 
 ```sh
 npm run build
+node build
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
