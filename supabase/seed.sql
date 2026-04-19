@@ -16,7 +16,8 @@ values (
   'Dianne Henderson (daughter) — (555) 234-8765',
   'Dianne Henderson — (555) 234-8765',
   'Allergic to sulfa drugs. Prefers morning routine before 9am. Mild dementia — responds well to familiar faces and music from the 1960s. Diabetic — check blood sugar before meals. Likes her coffee with cream, no sugar.'
-);
+)
+on conflict (id) do nothing;
 
 alter table public.patients enable trigger trg_assign_coordinator_on_patient_create;
 
@@ -37,7 +38,8 @@ values
    '00000000-0000-0000-0000-000000000010',
    'Mild Cognitive Impairment',
    'Early-stage dementia. Familiar routines and faces help with orientation. May become confused or agitated in the late afternoon (sundowning). Do not leave unattended near the stove. Use simple, short sentences and allow extra time for responses.',
-   '2023-06-10');
+   '2023-06-10')
+on conflict (id) do nothing;
 
 -- Schedule events (assigned_user_id left null — set by seed-auth-users.js after users exist)
 insert into public.schedule_events (id, patient_id, assigned_user_id, ics_uid, title, event_type, dtstart, dtend, rrule, status, additional_notes)
@@ -74,7 +76,8 @@ values
    '2026-04-22 15:00:00+00',
    null,
    'CONFIRMED',
-   'Quarterly checkup. Bring the printed medication list and the blood pressure log from the past month. Dr. Smith office: (555) 310-4400.');
+   'Quarterly checkup. Bring the printed medication list and the blood pressure log from the past month. Dr. Smith office: (555) 310-4400.')
+on conflict (id) do nothing;
 
 -- Checklist items for morning shift
 insert into public.checklist_items (id, event_id, description, category, done)
@@ -85,7 +88,8 @@ values
   ('00000000-0000-0000-0004-000000000004', '00000000-0000-0000-0001-000000000001', 'Check blood pressure (log the reading)', 'general', false),
   ('00000000-0000-0000-0004-000000000005', '00000000-0000-0000-0001-000000000001', 'Prepare and serve breakfast', 'general', false),
   ('00000000-0000-0000-0004-000000000006', '00000000-0000-0000-0001-000000000001', 'Assist with morning hygiene (shower or wash, dress)', 'general', false),
-  ('00000000-0000-0000-0004-000000000007', '00000000-0000-0000-0001-000000000001', 'Morning walk — 15–20 min if weather permits', 'general', false);
+  ('00000000-0000-0000-0004-000000000007', '00000000-0000-0000-0001-000000000001', 'Morning walk — 15–20 min if weather permits', 'general', false)
+on conflict (id) do nothing;
 
 -- Checklist items for evening shift
 insert into public.checklist_items (id, event_id, description, category, done)
@@ -94,4 +98,5 @@ values
   ('00000000-0000-0000-0004-000000000009', '00000000-0000-0000-0001-000000000002', 'Administer metformin 500mg with dinner', 'medication', false),
   ('00000000-0000-0000-0004-000000000010', '00000000-0000-0000-0001-000000000002', 'Check blood pressure (log the reading)', 'general', false),
   ('00000000-0000-0000-0004-000000000011', '00000000-0000-0000-0001-000000000002', 'Prepare and serve dinner', 'general', false),
-  ('00000000-0000-0000-0004-000000000012', '00000000-0000-0000-0001-000000000002', 'Ensure Joyce is settled and comfortable before leaving', 'general', false);
+  ('00000000-0000-0000-0004-000000000012', '00000000-0000-0000-0001-000000000002', 'Ensure Joyce is settled and comfortable before leaving', 'general', false)
+on conflict (id) do nothing;

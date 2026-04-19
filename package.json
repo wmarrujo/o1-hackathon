@@ -10,7 +10,8 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"db:reset": "supabase db reset && node scripts/seed-auth-users.js"
+		"db:reset": "supabase db reset && node scripts/seed-auth-users.js",
+		"seed:prod": "node scripts/seed-auth-users.js"
 	},
 	"devDependencies": {
 		"@fontsource-variable/inter": "^5.2.8",

@@ -1,29 +1,152 @@
 #!/usr/bin/env node
-// Creates demo auth users via Supabase's admin API, then inserts matching
-// public.users, user_roles, schedule shifts, tasks, and notes.
-// Run after `supabase db reset`.
+// Creates demo auth users via Supabase's admin API, then upserts all seed data.
+// Safe to run on every deploy — all operations are idempotent.
+//
+// Production: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars.
+// Local:      falls back to `npx supabase status -o env` if env vars are absent.
 //
 // Usage: node scripts/seed-auth-users.js
 
 import { createClient } from '@supabase/supabase-js';
 import { execSync } from 'node:child_process';
 
-const env = Object.fromEntries(
-	execSync('npx supabase status -o env', { encoding: 'utf8' })
-		.split('\n')
-		.filter(Boolean)
-		.map((line) => {
-			const i = line.indexOf('=');
-			return [line.slice(0, i), line.slice(i + 1).replace(/^"|"$/g, '')];
-		})
-);
+let supabaseUrl = process.env.SUPABASE_URL;
+let serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabase = createClient(env.API_URL, env.SERVICE_ROLE_KEY, {
+if (!supabaseUrl || !serviceRoleKey) {
+	const localEnv = Object.fromEntries(
+		execSync('npx supabase status -o env', { encoding: 'utf8' })
+			.split('\n')
+			.filter(Boolean)
+			.map((line) => {
+				const i = line.indexOf('=');
+				return [line.slice(0, i), line.slice(i + 1).replace(/^"|"$/g, '')];
+			})
+	);
+	supabaseUrl = localEnv.API_URL;
+	serviceRoleKey = localEnv.SERVICE_ROLE_KEY;
+}
+
+const supabase = createClient(supabaseUrl, serviceRoleKey, {
 	auth: { autoRefreshToken: false, persistSession: false }
 });
 
 // ── IDs ────────────────────────────────────────────────────────────────────────
 const PATIENT_ID = '00000000-0000-0000-0000-000000000010';
+
+// ── Patient ────────────────────────────────────────────────────────────────────
+// ignoreDuplicates: true → ON CONFLICT DO NOTHING, so the trigger that
+// auto-assigns a coordinator role is skipped on subsequent runs.
+// On first insert, auth.uid() is null (service role), so the trigger also
+// skips the auto-assignment — user_roles are handled explicitly below.
+{
+	const { error } = await supabase.from('patients').upsert([{
+		id: PATIENT_ID,
+		full_name: 'Joyce Henderson',
+		dob: '1941-08-22',
+		emergency_contact: 'Dianne Henderson (daughter) — (555) 234-8765',
+		family_contact: 'Dianne Henderson — (555) 234-8765',
+		notes: 'Allergic to sulfa drugs. Prefers morning routine before 9am. Mild dementia — responds well to familiar faces and music from the 1960s. Diabetic — check blood sugar before meals. Likes her coffee with cream, no sugar.',
+	}], { onConflict: 'id', ignoreDuplicates: true });
+	if (error) { console.error('patients:', error.message); process.exit(1); }
+	console.log('✓ patient (Joyce Henderson)');
+}
+
+// ── Health conditions ──────────────────────────────────────────────────────────
+{
+	const { error } = await supabase.from('health_conditions').upsert([
+		{
+			id: '00000000-0000-0000-0002-000000000001',
+			patient_id: PATIENT_ID,
+			name: 'Type 2 Diabetes',
+			description: 'Managed with metformin 500mg twice daily. Check blood glucose before each meal and at bedtime. Target range 80–180 mg/dL. Contact Dianne immediately if reading is below 70 or above 300.',
+			diagnosed_at: '2008-03-01',
+		},
+		{
+			id: '00000000-0000-0000-0002-000000000002',
+			patient_id: PATIENT_ID,
+			name: 'Hypertension',
+			description: 'Managed with lisinopril 10mg once daily (morning). Monitor blood pressure twice a day — morning before medications and evening before dinner. Target below 130/80.',
+			diagnosed_at: '2012-11-15',
+		},
+		{
+			id: '00000000-0000-0000-0002-000000000003',
+			patient_id: PATIENT_ID,
+			name: 'Mild Cognitive Impairment',
+			description: 'Early-stage dementia. Familiar routines and faces help with orientation. May become confused or agitated in the late afternoon (sundowning). Do not leave unattended near the stove. Use simple, short sentences and allow extra time for responses.',
+			diagnosed_at: '2023-06-10',
+		},
+	], { onConflict: 'id' });
+	if (error) { console.error('health_conditions:', error.message); process.exit(1); }
+	console.log('✓ health conditions (3 total)');
+}
+
+// ── Base schedule events (from seed.sql) ───────────────────────────────────────
+{
+	const { error } = await supabase.from('schedule_events').upsert([
+		{
+			id: '00000000-0000-0000-0001-000000000001',
+			patient_id: PATIENT_ID,
+			assigned_user_id: null,
+			ics_uid: 'morning-shift-joyce-2026@salus',
+			title: 'Morning Care Shift',
+			event_type: 'shift',
+			dtstart: '2026-04-18 08:00:00+00',
+			dtend: '2026-04-18 12:00:00+00',
+			rrule: 'FREQ=DAILY',
+			status: 'CONFIRMED',
+			additional_notes: 'Check blood glucose and BP first thing. Joyce prefers NPR on the radio during breakfast.',
+		},
+		{
+			id: '00000000-0000-0000-0001-000000000002',
+			patient_id: PATIENT_ID,
+			assigned_user_id: null,
+			ics_uid: 'evening-shift-joyce-2026@salus',
+			title: 'Evening Care Shift',
+			event_type: 'shift',
+			dtstart: '2026-04-18 17:00:00+00',
+			dtend: '2026-04-18 20:00:00+00',
+			rrule: 'FREQ=DAILY',
+			status: 'CONFIRMED',
+			additional_notes: 'Joyce tends to be more confused in the evening. Keep lights bright and routine consistent.',
+		},
+		{
+			id: '00000000-0000-0000-0001-000000000003',
+			patient_id: PATIENT_ID,
+			assigned_user_id: null,
+			ics_uid: 'dr-smith-appt-20260422@salus',
+			title: 'Dr. Smith — Primary Care Checkup',
+			event_type: 'appointment',
+			dtstart: '2026-04-22 14:00:00+00',
+			dtend: '2026-04-22 15:00:00+00',
+			rrule: null,
+			status: 'CONFIRMED',
+			additional_notes: 'Quarterly checkup. Bring the printed medication list and the blood pressure log from the past month. Dr. Smith office: (555) 310-4400.',
+		},
+	], { onConflict: 'id' });
+	if (error) { console.error('schedule_events (base):', error.message); process.exit(1); }
+	console.log('✓ base schedule events (3 total)');
+}
+
+// ── Checklist items ────────────────────────────────────────────────────────────
+{
+	const { error } = await supabase.from('checklist_items').upsert([
+		{ id: '00000000-0000-0000-0004-000000000001', event_id: '00000000-0000-0000-0001-000000000001', description: 'Check blood glucose before breakfast', category: 'medication', done: false },
+		{ id: '00000000-0000-0000-0004-000000000002', event_id: '00000000-0000-0000-0001-000000000001', description: 'Administer metformin 500mg with breakfast', category: 'medication', done: false },
+		{ id: '00000000-0000-0000-0004-000000000003', event_id: '00000000-0000-0000-0001-000000000001', description: 'Administer lisinopril 10mg', category: 'medication', done: false },
+		{ id: '00000000-0000-0000-0004-000000000004', event_id: '00000000-0000-0000-0001-000000000001', description: 'Check blood pressure (log the reading)', category: 'general', done: false },
+		{ id: '00000000-0000-0000-0004-000000000005', event_id: '00000000-0000-0000-0001-000000000001', description: 'Prepare and serve breakfast', category: 'general', done: false },
+		{ id: '00000000-0000-0000-0004-000000000006', event_id: '00000000-0000-0000-0001-000000000001', description: 'Assist with morning hygiene (shower or wash, dress)', category: 'general', done: false },
+		{ id: '00000000-0000-0000-0004-000000000007', event_id: '00000000-0000-0000-0001-000000000001', description: 'Morning walk — 15–20 min if weather permits', category: 'general', done: false },
+		{ id: '00000000-0000-0000-0004-000000000008', event_id: '00000000-0000-0000-0001-000000000002', description: 'Check blood glucose before dinner', category: 'medication', done: false },
+		{ id: '00000000-0000-0000-0004-000000000009', event_id: '00000000-0000-0000-0001-000000000002', description: 'Administer metformin 500mg with dinner', category: 'medication', done: false },
+		{ id: '00000000-0000-0000-0004-000000000010', event_id: '00000000-0000-0000-0001-000000000002', description: 'Check blood pressure (log the reading)', category: 'general', done: false },
+		{ id: '00000000-0000-0000-0004-000000000011', event_id: '00000000-0000-0000-0001-000000000002', description: 'Prepare and serve dinner', category: 'general', done: false },
+		{ id: '00000000-0000-0000-0004-000000000012', event_id: '00000000-0000-0000-0001-000000000002', description: 'Ensure Joyce is settled and comfortable before leaving', category: 'general', done: false },
+	], { onConflict: 'id', ignoreDuplicates: true });
+	if (error) { console.error('checklist_items:', error.message); process.exit(1); }
+	console.log('✓ checklist items (12 total)');
+}
 
 const DIANNE = '00000000-0000-0000-0000-000000000001';
 const LINDA  = '00000000-0000-0000-0000-000000000003';

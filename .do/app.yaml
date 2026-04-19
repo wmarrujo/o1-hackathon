@@ -1,0 +1,39 @@
+name: salus
+region: nyc
+
+services:
+  - name: web
+    github:
+      repo: silso/o1-hackathon   # update to your actual repo
+      branch: main
+      deploy_on_push: true
+    build_command: npm ci && npm run build
+    run_command: node build
+    http_port: 3000
+    instance_size_slug: basic-xxs
+    envs:
+      - key: SUPABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: SUPABASE_ANON_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+
+jobs:
+  - name: seed
+    kind: PRE_DEPLOY
+    github:
+      repo: silso/o1-hackathon   # update to your actual repo
+      branch: main
+    run_command: npm ci && npm run seed:prod
+    instance_size_slug: basic-xxs
+    envs:
+      - key: SUPABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        scope: RUN_TIME
+        type: SECRET
