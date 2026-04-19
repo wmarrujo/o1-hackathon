@@ -42,6 +42,32 @@
 	let mediaRecorder: MediaRecorder | null = null;
 	let audioChunks: Blob[] = [];
 
+	// Visualizer
+	let barHeights = $state<number[]>(Array(28).fill(0));
+	let visualizerFrame: number | null = null;
+
+	function startVisualizer(stream: MediaStream) {
+		const ctx = new AudioContext();
+		const src = ctx.createMediaStreamSource(stream);
+		const analyser = ctx.createAnalyser();
+		analyser.fftSize = 64;
+		src.connect(analyser);
+		const data = new Uint8Array(analyser.frequencyBinCount);
+		const n = barHeights.length;
+		function tick() {
+			visualizerFrame = requestAnimationFrame(tick);
+			analyser.getByteFrequencyData(data);
+			barHeights = Array.from({ length: n }, (_, i) => data[Math.floor(i * data.length / n)] / 255);
+		}
+		tick();
+	}
+
+	function stopVisualizer() {
+		if (visualizerFrame !== null) cancelAnimationFrame(visualizerFrame);
+		visualizerFrame = null;
+		barHeights = Array(28).fill(0);
+	}
+
 	// Confirm phase state
 	let pendingChanges = $state<LLMPayload | null>(null);
 	let currentTasks = $state<Record<string, Task>>({});
@@ -73,10 +99,11 @@
 			await transcribe(new Blob(audioChunks, { type: 'audio/webm' }));
 		};
 		mediaRecorder.start();
+		startVisualizer(stream);
 		isRecording = true;
 	}
 
-	function stopRecording() { mediaRecorder?.stop(); isRecording = false; }
+	function stopRecording() { mediaRecorder?.stop(); stopVisualizer(); isRecording = false; }
 
 	async function transcribe(blob: Blob) {
 		isTranscribing = true;
@@ -160,10 +187,11 @@
 			}
 		};
 		followUpMediaRecorder.start();
+		startVisualizer(stream);
 		isRecordingFollowUp = true;
 	}
 
-	function stopFollowUpRecording() { followUpMediaRecorder?.stop(); isRecordingFollowUp = false; }
+	function stopFollowUpRecording() { followUpMediaRecorder?.stop(); stopVisualizer(); isRecordingFollowUp = false; }
 
 	async function submitFollowUp() {
 		if (!followUpAnswer.trim()) return;
@@ -239,7 +267,11 @@
 						<Square class="h-4 w-4" />
 						Stop Recording
 					</Button>
-					<span class="text-sm font-medium text-destructive">Recording...</span>
+					<div class="flex items-center gap-px h-8">
+						{#each barHeights as h}
+							<div class="w-1 rounded-full bg-destructive transition-all duration-75" style="height: {Math.max(4, h * 32)}px"></div>
+						{/each}
+					</div>
 				{/if}
 				{#if isTranscribing}
 					<span class="flex items-center gap-1 text-sm text-muted-foreground">
@@ -340,7 +372,11 @@
 								<Square class="h-3 w-3" />
 								Stop
 							</Button>
-							<span class="text-xs font-medium text-destructive">Recording...</span>
+							<div class="flex items-center gap-px h-6">
+								{#each barHeights as h}
+									<div class="w-0.5 rounded-full bg-destructive transition-all duration-75" style="height: {Math.max(3, h * 24)}px"></div>
+								{/each}
+							</div>
 						{/if}
 					</div>
 
