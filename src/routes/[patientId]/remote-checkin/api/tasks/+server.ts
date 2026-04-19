@@ -4,7 +4,7 @@
  * Today-scoped deterministic slice of the remote check-in:
  *   - completed_today  — tasks completed since UTC midnight
  *   - pending_today    — tasks due today, not yet due, not complete
- *   - missed_today     — tasks due today, past due, not complete
+ *   - missed           — all incomplete tasks past their due time
  *   - events_today     — schedule_events starting today (rrule expansion not handled)
  *
  * "Today" is UTC calendar day. Runs in parallel with the AI endpoints.
@@ -66,7 +66,6 @@ async function handle(patientId: string, request: Request) {
       .select('id, description, due_time, assignee_id')
       .eq('patient_id', patientId)
       .eq('complete', false)
-      .gte('due_time', startIso)
       .lt('due_time', nowIso)
       .order('due_time', { ascending: true }),
     supabase
@@ -97,7 +96,7 @@ async function handle(patientId: string, request: Request) {
     assignee_name: t.assignee_id ? userName.get(t.assignee_id) ?? null : null,
   }))
 
-  const missed_today = (missedRaw ?? []).map((t) => ({
+  const missed = (missedRaw ?? []).map((t) => ({
     id: t.id,
     description: t.description,
     due_time: t.due_time,
@@ -113,5 +112,5 @@ async function handle(patientId: string, request: Request) {
     assignee_name: e.assigned_user_id ? userName.get(e.assigned_user_id) ?? null : null,
   }))
 
-  return json({ completed_today, pending_today, missed_today, events_today })
+  return json({ completed_today, pending_today, missed, events_today })
 }

@@ -29,7 +29,7 @@
 	type TasksPayload = {
 		completed_today: CompletedTask[];
 		pending_today: PendingTask[];
-		missed_today: PendingTask[];
+		missed: PendingTask[];
 		events_today: ScheduledEvent[];
 	};
 	type TodayPayload = { summary: string };
@@ -97,6 +97,18 @@
 	function formatTime(iso: string | null): string {
 		if (!iso) return '';
 		return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+	}
+
+	function formatDueTime(iso: string | null): string {
+		if (!iso) return '';
+		const d = new Date(iso);
+		const now = new Date();
+		const sameDay =
+			d.getFullYear() === now.getFullYear() &&
+			d.getMonth() === now.getMonth() &&
+			d.getDate() === now.getDate();
+		if (sameDay) return formatTime(iso);
+		return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + formatTime(iso);
 	}
 
 	function renderMd(s: string): string {
@@ -208,12 +220,12 @@
 				{/if}
 			</section>
 
-			<!-- Missed today -->
+			<!-- Missed -->
 			<section class="rounded-xl border bg-white p-4 shadow-sm">
 				<div class="mb-2 flex items-center gap-2">
 					<AlertTriangle class="h-4 w-4 text-red-600" />
 					<h3 class="text-sm font-semibold">
-						Missed today{tasksData ? ` (${tasksData.missed_today.length})` : ''}
+						Missed{tasksData ? ` (${tasksData.missed.length})` : ''}
 					</h3>
 					{#if tasksLoading}<Loader2 class="h-3.5 w-3.5 animate-spin text-muted-foreground" />{/if}
 				</div>
@@ -221,15 +233,15 @@
 					<p class="text-sm text-muted-foreground">Loading…</p>
 				{:else if tasksError}
 					<p class="text-sm text-destructive">{tasksError}</p>
-				{:else if tasksData && tasksData.missed_today.length === 0}
+				{:else if tasksData && tasksData.missed.length === 0}
 					<p class="text-sm text-muted-foreground">Nothing missed.</p>
 				{:else if tasksData}
 					<ul class="space-y-2">
-						{#each tasksData.missed_today as t}
+						{#each tasksData.missed as t}
 							<li class="flex items-start justify-between gap-3 text-sm">
 								<span class="text-slate-700">{t.description}</span>
 								<span class="shrink-0 text-xs text-slate-400">
-									{t.assignee_name ?? 'unassigned'} · due {formatTime(t.due_time)}
+									{t.assignee_name ?? 'unassigned'} · due {formatDueTime(t.due_time)}
 								</span>
 							</li>
 						{/each}
