@@ -2,6 +2,51 @@
 	import { Button } from '$lib/components/ui/button';
 	import SalusLogo from '$lib/components/SalusLogo.svelte';
 
+	function randInt(min: number, max: number) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+	function fmt(n: number) {
+		return '$' + n.toLocaleString();
+	}
+
+	let pca        = $state(randInt(30000, 60000));
+	let ils        = $state(randInt(5000, 20000));
+	let doctor     = $state(randInt(3000, 15000));
+	let pt         = $state(randInt(2000, 10000));
+	let transport  = $state(randInt(1500, 8000));
+	let medicaid   = $state(randInt(15000, 50000));
+
+	let caregiverHrs = $state(randInt(144, 240));
+	let familyHrs    = $state(randInt(96, 192));
+	let researchHrs  = $state(randInt(60, 240));
+	let trackingHrs  = $state(randInt(48, 144));
+	let doctorHrs    = $state(randInt(24, 96));
+	let hourlyRate   = $state(randInt(20, 50));
+
+	let grossCost   = $derived(pca + ils + doctor + pt + transport);
+	let netCost     = $derived(grossCost - medicaid);
+	let totalHrs    = $derived(caregiverHrs + familyHrs + researchHrs + trackingHrs + doctorHrs);
+	let annualSaved = $derived(totalHrs * hourlyRate);
+
+	function randomize() {
+		pca        = randInt(30000, 60000);
+		ils        = randInt(5000, 20000);
+		doctor     = randInt(3000, 15000);
+		pt         = randInt(2000, 10000);
+		transport  = randInt(1500, 8000);
+		medicaid   = randInt(15000, 50000);
+
+		caregiverHrs = randInt(144, 240);
+		familyHrs    = randInt(96, 192);
+		researchHrs  = randInt(60, 240);
+		trackingHrs  = randInt(48, 144);
+		doctorHrs    = randInt(24, 96);
+		hourlyRate   = randInt(20, 50);
+	}
+
+	let detailsExpanded = $state(false);
+
 	const features_free = [
 		'1 patient profile',
 		'Up to 2 team members',
@@ -62,11 +107,134 @@
 <!-- HERO -->
 <section class="px-6 pb-16 pt-24 text-center">
 	<div class="mx-auto max-w-2xl">
-		<div class="mb-4 text-sm font-semibold uppercase tracking-widest text-primary">Pricing</div>
-		<h1 class="mb-4 text-5xl font-bold leading-tight tracking-tight">Simple, honest pricing.</h1>
-		<p class="text-lg text-muted-foreground">
-			Start for free. Upgrade when your care team grows.
-		</p>
+		<h1 class="text-5xl font-bold leading-tight tracking-tight">Pricing</h1>
+	</div>
+</section>
+
+<!-- CONTEXT -->
+<section class="px-6 pb-24">
+	<div class="mx-auto max-w-6xl">
+
+		<div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+			<div>
+				<h2 class="text-3xl font-bold">See how the numbers add up.</h2>
+				<p class="mt-2 text-sm text-muted-foreground">Ranges are approximate US averages. Hit randomize to explore different scenarios.</p>
+			</div>
+			<button
+				onclick={randomize}
+				class="shrink-0 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+			>
+				🎲 Randomize example
+			</button>
+		</div>
+
+		<div class="grid gap-8 md:grid-cols-2">
+
+			<!-- Left: example care costs -->
+			<!-- Left: example care costs -->
+			<div class="flex flex-col rounded-2xl border border-border bg-card p-6">
+				<div class="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Example costs</div>
+				<div class="mb-1 flex items-end justify-between gap-2">
+					<div class="font-display text-4xl font-bold">{fmt(Math.max(0, netCost))}</div>
+					<div class="mb-1 text-xs text-muted-foreground">net / yr</div>
+				</div>
+
+				<button
+					onclick={() => detailsExpanded = !detailsExpanded}
+					class="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+				>
+					<span>{detailsExpanded ? '▾' : '▸'}</span>
+					{detailsExpanded ? 'Hide' : 'Show'} breakdown
+				</button>
+
+				{#if detailsExpanded}
+					<div class="mt-4 flex flex-col gap-2.5 border-t border-border pt-4">
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Personal Care Attendant (PCA)</div>
+							<div class="shrink-0 font-mono text-sm font-semibold">{fmt(pca)}</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Independent Living Services (ILS)</div>
+							<div class="shrink-0 font-mono text-sm font-semibold">{fmt(ils)}</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Doctor and specialist visits</div>
+							<div class="shrink-0 font-mono text-sm font-semibold">{fmt(doctor)}</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Physical and occupational therapy</div>
+							<div class="shrink-0 font-mono text-sm font-semibold">{fmt(pt)}</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Medical transportation</div>
+							<div class="shrink-0 font-mono text-sm font-semibold">{fmt(transport)}</div>
+						</div>
+						<div class="flex items-center justify-between gap-4 border-t border-border pt-2.5">
+							<div class="text-sm font-semibold text-green-700 dark:text-green-400">Medicaid / state waiver offset</div>
+							<div class="shrink-0 font-mono text-sm font-semibold text-green-700 dark:text-green-400">- {fmt(medicaid)}</div>
+						</div>
+					</div>
+				{/if}
+			</div>
+
+			<!-- Right: time and dollar savings -->
+			<div class="flex flex-col rounded-2xl border border-primary bg-card p-6">
+				<div class="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">Potential savings</div>
+				<div class="mb-1 flex items-end justify-between gap-2">
+					<div class="font-display text-4xl font-bold text-primary">{fmt(annualSaved)}</div>
+					<div class="mb-1 text-xs text-muted-foreground">recovered / yr</div>
+				</div>
+
+				<button
+					onclick={() => detailsExpanded = !detailsExpanded}
+					class="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+				>
+					<span>{detailsExpanded ? '▾' : '▸'}</span>
+					{detailsExpanded ? 'Hide' : 'Show'} breakdown
+				</button>
+
+				{#if detailsExpanded}
+					<div class="mt-4 flex flex-col gap-2.5 border-t border-border pt-4">
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Caregiver update calls and texts</div>
+							<div class="shrink-0 text-right">
+								<div class="font-mono text-sm font-semibold text-primary">{fmt(caregiverHrs * hourlyRate)}</div>
+								<div class="text-xs text-muted-foreground">{caregiverHrs} hrs / yr</div>
+							</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Coordinating between family members</div>
+							<div class="shrink-0 text-right">
+								<div class="font-mono text-sm font-semibold text-primary">{fmt(familyHrs * hourlyRate)}</div>
+								<div class="text-xs text-muted-foreground">{familyHrs} hrs / yr</div>
+							</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Researching equipment and resources</div>
+							<div class="shrink-0 text-right">
+								<div class="font-mono text-sm font-semibold text-primary">{fmt(researchHrs * hourlyRate)}</div>
+								<div class="text-xs text-muted-foreground">{researchHrs} hrs / yr</div>
+							</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Tracking missed tasks and follow-ups</div>
+							<div class="shrink-0 text-right">
+								<div class="font-mono text-sm font-semibold text-primary">{fmt(trackingHrs * hourlyRate)}</div>
+								<div class="text-xs text-muted-foreground">{trackingHrs} hrs / yr</div>
+							</div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<div class="text-sm font-semibold">Preparing doctors with current info</div>
+							<div class="shrink-0 text-right">
+								<div class="font-mono text-sm font-semibold text-primary">{fmt(doctorHrs * hourlyRate)}</div>
+								<div class="text-xs text-muted-foreground">{doctorHrs} hrs / yr</div>
+							</div>
+						</div>
+					</div>
+				{/if}
+			</div>
+
+		</div>
 	</div>
 </section>
 
