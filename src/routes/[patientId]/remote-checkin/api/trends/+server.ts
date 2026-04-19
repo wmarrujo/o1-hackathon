@@ -132,8 +132,6 @@ async function handle(patientId: string, request: Request) {
     windowDays: WINDOW_DAYS,
   })
 
-  console.log('[remote-checkin/trends] agent input:\n', agentInput)
-
   const ai = await callAgent(agentInput)
   return json(ai)
 }
@@ -216,7 +214,6 @@ async function callAgent(content: string): Promise<{ trends: string; future_issu
 
   const data = await res.json()
   const replyText: string = data?.choices?.[0]?.message?.content ?? ''
-  console.log('[remote-checkin/trends] agent raw reply:', replyText)
 
   const cleaned = stripCodeFences(replyText)
   let parsed: unknown
