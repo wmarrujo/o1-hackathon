@@ -1,19 +1,30 @@
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 
-export interface LLMPayload {
+// What the LLM sends — no patient_id, that's the server's job
+interface LLMBody {
+  patient_id: string
   task_edits: {
     id: string
-    description?: string
-    complete?: boolean
-    start_time?: string | null
-    due_time?: string | null
-    location?: string | null
+    complete: boolean
+  }[]
+  notes: {
+    content: string
+    task_id?: string | null
+  }[]
+}
+
+// What gets returned to the client for the preview page
+export interface LLMPayload {
+  patient_id: string
+  task_edits: {
+    id: string
+    complete: boolean
   }[]
   notes: {
     patient_id: string
-    task_id?: string | null
     content: string
+    task_id?: string | null
   }[]
 }
 
@@ -37,6 +48,12 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const raw = body as Record<string, unknown>
 
+  // Validate patient_id (set by the calling app, not the LLM)
+  if (!isUUID(raw.patient_id)) {
+    return json({ error: 'patient_id must be a valid UUID' }, { status: 400 })
+  }
+  const patient_id = raw.patient_id as string
+
   // Validate task_edits
   if (!Array.isArray(raw.task_edits)) {
     return json({ error: 'task_edits must be an array' }, { status: 400 })
@@ -49,8 +66,8 @@ export const POST: RequestHandler = async ({ request }) => {
     if (!isUUID(e.id)) {
       return json({ error: `task_edit.id must be a valid UUID, got: ${e.id}` }, { status: 400 })
     }
-    if ('complete' in e && typeof e.complete !== 'boolean') {
-      return json({ error: 'task_edit.complete must be a boolean' }, { status: 400 })
+    if (typeof e.complete !== 'boolean') {
+      return json({ error: 'task_edit.complete is required and must be a boolean' }, { status: 400 })
     }
   }
 
@@ -63,9 +80,6 @@ export const POST: RequestHandler = async ({ request }) => {
       return json({ error: 'Each note must be an object' }, { status: 400 })
     }
     const n = note as Record<string, unknown>
-    if (!isUUID(n.patient_id)) {
-      return json({ error: `note.patient_id must be a valid UUID, got: ${n.patient_id}` }, { status: 400 })
-    }
     if (typeof n.content !== 'string' || n.content.trim() === '') {
       return json({ error: 'note.content must be a non-empty string' }, { status: 400 })
     }
@@ -75,18 +89,16 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   const changes: LLMPayload = {
+    patient_id,
     task_edits: (raw.task_edits as Record<string, unknown>[]).map((e) => ({
       id: e.id as string,
-      ...(e.description !== undefined && { description: e.description as string }),
-      ...(e.complete !== undefined && { complete: e.complete as boolean }),
-      ...(e.start_time !== undefined && { start_time: e.start_time as string | null }),
-      ...(e.due_time !== undefined && { due_time: e.due_time as string | null }),
-      ...(e.location !== undefined && { location: e.location as string | null }),
+      complete: e.complete as boolean,
     })),
+    // Server stamps patient_id onto every note
     notes: (raw.notes as Record<string, unknown>[]).map((n) => ({
-      patient_id: n.patient_id as string,
+      patient_id,
       content: (n.content as string).trim(),
-      ...('task_id' in n && { task_id: n.task_id as string | null }),
+      ...('task_id' in n && { task_id: (n as Record<string, unknown>).task_id as string | null }),
     })),
   }
 

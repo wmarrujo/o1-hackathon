@@ -17,9 +17,6 @@
     id: string
     description: string
     complete: boolean
-    start_time: string | null
-    due_time: string | null
-    location: string | null
   }
 
   let currentTasks = $state<Record<string, Task>>({})
@@ -37,7 +34,7 @@
     const ids = changes.task_edits.map((e) => e.id)
     const { data, error: fetchError } = await supabase
       .from('tasks')
-      .select('id, description, complete, start_time, due_time, location')
+      .select('id, description, complete')
       .in('id', ids)
 
     if (fetchError) {
@@ -86,10 +83,6 @@
     history.back()
   }
 
-  function formatDate(iso: string | null | undefined) {
-    if (!iso) return null
-    return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
-  }
 </script>
 
 <div class="mx-auto max-w-2xl px-4 py-12">
@@ -127,44 +120,14 @@
                   <Skeleton class="mb-2 h-4 w-3/4" />
                   <Skeleton class="h-3 w-1/2" />
                 {:else if current}
-                  <p class="mb-2 text-sm font-medium">
-                    {edit.description ?? current.description}
-                  </p>
-                  <div class="space-y-1 text-xs text-muted-foreground">
-                    {#if edit.complete !== undefined && edit.complete !== current.complete}
-                      <div class="flex items-center gap-1">
-                        <span class="font-medium text-foreground">complete:</span>
-                        <span class="line-through">{current.complete}</span>
-                        <span>→</span>
-                        <Badge variant={edit.complete ? 'default' : 'outline'}>
-                          {edit.complete}
-                        </Badge>
-                      </div>
-                    {/if}
-                    {#if edit.description !== undefined && edit.description !== current.description}
-                      <div>
-                        <span class="font-medium text-foreground">description:</span>
-                        <span class="line-through">{current.description}</span>
-                        → {edit.description}
-                      </div>
-                    {/if}
-                    {#if edit.due_time !== undefined}
-                      <div>
-                        <span class="font-medium text-foreground">due:</span>
-                        {#if current.due_time}
-                          <span class="line-through">{formatDate(current.due_time)}</span>
-                          →
-                        {/if}
-                        {formatDate(edit.due_time) ?? 'none'}
-                      </div>
-                    {/if}
-                    {#if edit.location !== undefined && edit.location !== current.location}
-                      <div>
-                        <span class="font-medium text-foreground">location:</span>
-                        {#if current.location}<span class="line-through">{current.location}</span> →{/if}
-                        {edit.location ?? 'none'}
-                      </div>
-                    {/if}
+                  <p class="mb-2 text-sm font-medium">{current.description}</p>
+                  <div class="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span class="font-medium text-foreground">complete:</span>
+                    <span class="line-through">{current.complete}</span>
+                    <span>→</span>
+                    <Badge variant={edit.complete ? 'default' : 'outline'}>
+                      {edit.complete}
+                    </Badge>
                   </div>
                 {:else}
                   <p class="text-sm italic text-muted-foreground">Task not found: {edit.id}</p>
