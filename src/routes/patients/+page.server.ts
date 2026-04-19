@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const { supabase, session } = locals
 	const user = session!.user
 
@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const patients = patientData ?? []
 
-	if (patients.length === 1) {
+	if (patients.length === 1 && !url.searchParams.has('switch')) {
 		redirect(303, `/${patients[0].id}`)
 	}
 

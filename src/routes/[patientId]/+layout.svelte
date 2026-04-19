@@ -63,10 +63,12 @@
 						Team
 					</Button>
 				{/if}
-				<Button variant="ghost" size="sm" onclick={() => goto('/patients')} class="gap-1.5 text-xs">
-					<ArrowLeftRight class="h-3.5 w-3.5" />
-					<span class="hidden sm:inline">Switch</span>
-				</Button>
+				{#if data.patientCount > 1}
+					<Button variant="ghost" size="sm" onclick={() => goto('/patients?switch=1')} class="gap-1.5 text-xs">
+						<ArrowLeftRight class="h-3.5 w-3.5" />
+						<span class="hidden sm:inline">Switch</span>
+					</Button>
+				{/if}
 				<Button variant="ghost" size="sm" onclick={signOut} class="gap-1.5 text-xs">
 					<LogOut class="h-3.5 w-3.5" />
 					<span class="hidden sm:inline">Sign out</span>

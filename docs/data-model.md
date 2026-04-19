@@ -218,3 +218,4 @@ Shift check-ins submitted by caregivers. AI fields populated by Edge Function po
 | `author_id` | `uuid` | ✓ | FK |
 | `content` | `text` | ✓ |  |
 | `created_at` | `timestamptz` | ✓ |  |
+| `edited_on` | `timestamptz` |  |  |

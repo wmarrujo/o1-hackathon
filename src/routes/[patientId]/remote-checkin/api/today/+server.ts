@@ -110,8 +110,6 @@ async function handle(patientId: string, request: Request) {
     })),
   })
 
-  console.log('[remote-checkin/today] agent input:\n', agentInput)
-
   const summary = await callAgent(agentInput)
   return json({ summary })
 }
@@ -178,7 +176,6 @@ async function callAgent(content: string): Promise<string> {
 
   const data = await res.json()
   const replyText: string = data?.choices?.[0]?.message?.content ?? ''
-  console.log('[remote-checkin/today] agent raw reply:', replyText)
 
   const cleaned = stripCodeFences(replyText)
   let parsed: unknown
@@ -186,7 +183,6 @@ async function callAgent(content: string): Promise<string> {
     parsed = JSON.parse(cleaned)
   } catch {
     // Agent returned raw text instead of JSON — accept it as the summary.
-    console.warn('[remote-checkin/today] agent reply was not JSON, using raw text')
     return cleaned
   }
 
@@ -196,7 +192,6 @@ async function callAgent(content: string): Promise<string> {
   for (const v of Object.values(p)) {
     if (typeof v === 'string' && v.trim()) return v
   }
-  console.warn('[remote-checkin/today] no usable string in parsed reply:', p)
   return ''
 }
 
