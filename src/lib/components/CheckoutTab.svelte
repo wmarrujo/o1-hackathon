@@ -91,7 +91,7 @@
 		isSubmitting = true;
 		error = '';
 		try {
-			const res = await fetch('/checkout/api', {
+			const res = await fetch(`/${patientId}/checkout/api`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: await authHeader() },
 				body: JSON.stringify({ patient_id: patientId, messages: msgs }),
@@ -106,7 +106,7 @@
 				pendingQuestion = data.question;
 				followUpAnswer = '';
 			} else {
-				await goto('/confirm-changes', { state: { changes: data.changes } });
+				await goto(`/${patientId}/confirm-changes`, { state: { changes: data.changes } });
 			}
 		} catch (e: any) {
 			error = e.message;
