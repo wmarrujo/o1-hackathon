@@ -53,6 +53,19 @@ const PATIENT_ID_2 = '00000000-0000-0000-0000-000000000011';
 	console.log('✓ patient (Joyce Henderson)');
 }
 
+{
+	const { error } = await supabase.from('patients').upsert([{
+		id: PATIENT_ID_2,
+		full_name: 'Arturo Ramos',
+		dob: '1952-03-15',
+		emergency_contact: 'Maria Ramos (wife) — (555) 412-9087',
+		family_contact: 'Sofia Ramos (daughter) — (555) 412-3321',
+		notes: "Spanish is his primary language — he understands English but prefers Spanish. Parkinson's disease — tremors worse in the morning before medication. Uses a walker. Loves telenovelas and coffee with two sugars. Do NOT give acetaminophen (liver concern).",
+	}], { onConflict: 'id', ignoreDuplicates: true });
+	if (error) { console.error('patients:', error.message); process.exit(1); }
+	console.log('✓ patient (Arturo Ramos)');
+}
+
 // ── Health conditions ──────────────────────────────────────────────────────────
 {
 	const { error } = await supabase.from('health_conditions').upsert([
@@ -80,6 +93,27 @@ const PATIENT_ID_2 = '00000000-0000-0000-0000-000000000011';
 	], { onConflict: 'id' });
 	if (error) { console.error('health_conditions:', error.message); process.exit(1); }
 	console.log('✓ health conditions (3 total)');
+}
+
+{
+	const { error } = await supabase.from('health_conditions').upsert([
+		{
+			id: '00000000-0000-0000-0002-000000000004',
+			patient_id: PATIENT_ID_2,
+			name: "Parkinson's Disease",
+			description: 'Diagnosed stage 2. Managed with carbidopa-levodopa 25-100mg three times daily (8am, 1pm, 6pm). Tremor and rigidity worst first thing in the morning before the 8am dose — allow extra time for breakfast and dressing. Requires walker for all ambulation. Call Sofia if he falls or refuses medication.',
+			diagnosed_at: '2019-09-11',
+		},
+		{
+			id: '00000000-0000-0000-0002-000000000005',
+			patient_id: PATIENT_ID_2,
+			name: 'Osteoarthritis (knees)',
+			description: 'Bilateral knee osteoarthritis. Topical diclofenac gel as needed for pain — apply to knees twice daily. AVOID acetaminophen (liver concern from prior hepatitis). Gentle range-of-motion exercises in the morning help with stiffness.',
+			diagnosed_at: '2016-04-21',
+		},
+	], { onConflict: 'id' });
+	if (error) { console.error('health_conditions (Arturo):', error.message); process.exit(1); }
+	console.log('✓ health conditions — Arturo (2 total)');
 }
 
 // ── Base schedule events (from seed.sql) ───────────────────────────────────────
