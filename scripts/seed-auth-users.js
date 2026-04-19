@@ -470,12 +470,71 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 		patient_id: PATIENT_ID,
 		description: 'Walk with Joyce around the block — 15 min',
 		due_time: '2026-04-19T15:00:00+00:00',
-		assignee_id: LINDA,
+		assignee_id: KELSEY,
 		complete: true,
-		completed_by: LINDA,
+		completed_by: KELSEY,
 		completed_at: '2026-04-19T14:50:00+00:00',
 		created_by: DIANNE,
 		created_at: '2026-04-19T08:00:00+00:00'
+	},
+	// Completed by Kelsey this Sunday morning shift (Apr 19)
+	{
+		id: '00000000-0000-0000-0003-000000000014',
+		patient_id: PATIENT_ID,
+		description: 'Check morning blood glucose and log reading',
+		due_time: '2026-04-19T13:00:00+00:00',
+		assignee_id: KELSEY,
+		complete: true,
+		completed_by: KELSEY,
+		completed_at: '2026-04-19T12:45:00+00:00',
+		created_by: DIANNE,
+		created_at: '2026-04-18T20:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0003-000000000015',
+		patient_id: PATIENT_ID,
+		description: 'Administer metformin 500mg with breakfast',
+		due_time: '2026-04-19T13:30:00+00:00',
+		assignee_id: KELSEY,
+		complete: true,
+		completed_by: KELSEY,
+		completed_at: '2026-04-19T13:10:00+00:00',
+		created_by: DIANNE,
+		created_at: '2026-04-18T20:00:00+00:00'
+	},
+	{
+		id: '00000000-0000-0000-0003-000000000016',
+		patient_id: PATIENT_ID,
+		description: 'Prepare and serve breakfast; assist with morning hygiene',
+		due_time: '2026-04-19T14:30:00+00:00',
+		assignee_id: KELSEY,
+		complete: true,
+		completed_by: KELSEY,
+		completed_at: '2026-04-19T14:20:00+00:00',
+		created_by: DIANNE,
+		created_at: '2026-04-18T20:00:00+00:00'
+	},
+	// Missed yesterday (Apr 18) — Cathy had the Sat evening shift and never logged BP
+	{
+		id: '00000000-0000-0000-0003-000000000017',
+		patient_id: PATIENT_ID,
+		description: "Log Joyce's evening blood pressure reading",
+		due_time: '2026-04-18T22:00:00+00:00',
+		assignee_id: CATHY,
+		complete: false,
+		created_by: DIANNE,
+		created_at: '2026-04-18T15:00:00+00:00'
+	},
+	// Linda's near-term task — visible on Dianne's dashboard as upcoming
+	{
+		id: '00000000-0000-0000-0003-000000000018',
+		patient_id: PATIENT_ID,
+		description: "Restock Joyce's bedside water and tissues tonight",
+		due_time: '2026-04-19T22:00:00+00:00',
+		assignee_id: LINDA,
+		complete: false,
+		created_by: DIANNE,
+		created_at: '2026-04-19T10:00:00+00:00'
 	},
 	// ── Arturo Ramos tasks (Linda is sole caregiver + coordinator) ──────────
 	{
@@ -554,7 +613,7 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 	},
 ], { onConflict: 'id' });
 if (taskErr) { console.error('tasks:', taskErr.message); process.exit(1); }
-console.log('✓ tasks (20 total)');
+console.log('✓ tasks (25 total)');
 
 // ── Notes ──────────────────────────────────────────────────────────────────────
 const { error: noteErr } = await supabase.from('notes').upsert([

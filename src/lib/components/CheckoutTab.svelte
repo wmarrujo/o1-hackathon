@@ -9,10 +9,11 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import { Mic, Square, Send, Loader2, MessageCircle } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 
 	let { patientId, onDone }: { patientId: string; onDone?: () => void } = $props();
 
-	type Phase = 'input' | 'confirm' | 'done';
+	type Phase = 'input' | 'confirm';
 	type Message = { role: 'user' | 'assistant'; content: string };
 	type Task = { id: string; description: string; complete: boolean };
 
@@ -167,6 +168,7 @@
 	async function submitFollowUp() {
 		if (!followUpAnswer.trim()) return;
 		const updatedMessages: Message[] = [...messages, { role: 'user', content: followUpAnswer.trim() }];
+		messages = updatedMessages;
 		pendingQuestion = '';
 		await sendToAgent(updatedMessages);
 	}
@@ -205,7 +207,9 @@
 			const failed = results.find((r) => r.error);
 			if (failed?.error) throw new Error(failed.error.message);
 
-			phase = 'done';
+			toast.success('Checkout submitted');
+			if (onDone) onDone();
+			else goto(`/${patientId}`);
 		} catch (e: any) {
 			error = e.message;
 		} finally {
@@ -284,6 +288,18 @@
 					<p class="text-sm leading-relaxed">{transcript}</p>
 				</CardContent>
 			</Card>
+		{/if}
+
+		{#if messages.length > 0}
+			<div class="mb-4 flex flex-col gap-2">
+				{#each messages as msg, i}
+					{#if !(pendingQuestion && i === messages.length - 1 && msg.role === 'assistant')}
+						<div class="rounded-md px-3 py-2 text-sm leading-relaxed {msg.role === 'user' ? 'bg-muted text-foreground self-end ml-8' : 'bg-primary/5 text-foreground self-start mr-8'}">
+							{msg.content}
+						</div>
+					{/if}
+				{/each}
+			</div>
 		{/if}
 
 		{#if isSubmitting && !pendingQuestion}
@@ -425,12 +441,6 @@
 			</Button>
 		</div>
 
-	<!-- ── Done ──────────────────────────────────────────────── -->
-	{:else if phase === 'done'}
-		<div class="py-8 text-center">
-			<p class="mb-4 text-lg font-medium">Changes saved.</p>
-			<Button onclick={() => onDone ? onDone() : goto(`/${patientId}/tasks`)}>Done</Button>
-		</div>
 	{/if}
 
 </div>
