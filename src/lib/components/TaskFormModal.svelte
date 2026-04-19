@@ -100,7 +100,7 @@
 				/>
 			</div>
 
-			<div class="grid grid-cols-2 gap-3">
+			<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div class="space-y-1.5">
 					<Label for="start">Start</Label>
 					<Input id="start" type="datetime-local" bind:value={startTime} />
