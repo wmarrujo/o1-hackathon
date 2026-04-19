@@ -149,6 +149,9 @@
 			<span class="font-display text-xl font-bold tracking-tight">Salus</span>
 		</a>
 		<div class="flex items-center gap-3">
+			<Button variant="ghost" href="/pricing" class="text-muted-foreground hover:text-foreground">
+				Pricing
+			</Button>
 			<Button variant="ghost" href="/login" class="text-muted-foreground hover:text-foreground">
 				Log In
 			</Button>
@@ -395,6 +398,7 @@
 		</div>
 		<div>© 2025 Salus. Care coordination for families.</div>
 		<div class="flex gap-4">
+			<a href="/pricing" class="transition-colors hover:text-foreground">Pricing</a>
 			<a href="/login" class="transition-colors hover:text-foreground">Log In</a>
 			<a href="/login?signup=true" class="transition-colors hover:text-foreground">Sign Up</a>
 		</div>
