@@ -1,16 +1,18 @@
 export interface Patient {
 	id: string;
-	name: string;
-	date_of_birth?: string;
+	full_name: string;
+	dob?: string;
+	emergency_contact?: string;
+	family_contact?: string;
 	notes?: string;
 	created_at: string;
 }
 
-export interface Member {
+export interface UserRole {
 	id: string;
 	user_id: string;
 	patient_id: string;
-	coordinator: boolean;
+	role: 'coordinator' | 'caregiver' | 'gov_coordinator';
 	created_at: string;
 }
 
@@ -42,5 +44,5 @@ export interface Note {
 export interface UserProfile {
 	id: string;
 	email: string;
-	full_name?: string | null;
+	full_name: string;
 }

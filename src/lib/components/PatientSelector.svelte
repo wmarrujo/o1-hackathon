@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Patient } from '$lib/types';
 	import { supabase } from '$lib/supabaseClient';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Card, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 
 	let { patients, onSelect, userEmail }: {
@@ -21,25 +21,22 @@
 
 		{#if patients.length === 0}
 			<Card>
-				<CardContent class="pt-6 text-center">
+				<div class="p-6 text-center">
 					<p class="text-muted-foreground text-sm">
 						You are not assigned to any patients yet. Please contact your coordinator.
 					</p>
-				</CardContent>
+				</div>
 			</Card>
 		{:else}
 			<h2 class="mb-3 text-lg font-semibold">Select a patient</h2>
 			<div class="space-y-3">
 				{#each patients as patient}
-					<button
-						class="w-full text-left"
-						onclick={() => onSelect(patient)}
-					>
+					<button class="w-full text-left" onclick={() => onSelect(patient)}>
 						<Card class="cursor-pointer transition-shadow hover:shadow-md active:scale-[0.99]">
 							<CardHeader class="pb-2">
-								<CardTitle class="text-lg">{patient.name}</CardTitle>
-								{#if patient.date_of_birth}
-									<CardDescription>DOB: {new Date(patient.date_of_birth).toLocaleDateString()}</CardDescription>
+								<CardTitle class="text-lg">{patient.full_name}</CardTitle>
+								{#if patient.dob}
+									<CardDescription>DOB: {new Date(patient.dob).toLocaleDateString()}</CardDescription>
 								{/if}
 							</CardHeader>
 						</Card>
@@ -48,11 +45,7 @@
 			</div>
 		{/if}
 
-		<Button
-			variant="ghost"
-			class="mt-8 w-full text-sm"
-			onclick={() => supabase.auth.signOut()}
-		>
+		<Button variant="ghost" class="mt-8 w-full text-sm" onclick={() => supabase.auth.signOut()}>
 			Sign out
 		</Button>
 	</div>

@@ -2,14 +2,14 @@
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import type { AuthSession } from '@supabase/supabase-js';
-	import type { Patient, Member } from '$lib/types';
+	import type { Patient, UserRole } from '$lib/types';
 	import LoginPage from '$lib/components/LoginPage.svelte';
 	import PatientSelector from '$lib/components/PatientSelector.svelte';
 	import AppShell from '$lib/components/AppShell.svelte';
 
 	let session = $state<AuthSession | null>(null);
 	let patients = $state<Patient[]>([]);
-	let members = $state<Member[]>([]);
+	let userRoles = $state<UserRole[]>([]);
 	let selectedPatient = $state<Patient | null>(null);
 	let loading = $state(true);
 
@@ -25,46 +25,54 @@
 			if (_session) loadPatients();
 			else {
 				patients = [];
-				members = [];
+				userRoles = [];
 				selectedPatient = null;
 				loading = false;
 			}
 		});
 	});
 
+	async function ensureProfile() {
+		const user = session!.user;
+		await supabase.from('users').upsert({
+			id: user.id,
+			email: user.email ?? '',
+			full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'Unknown'
+		}, { onConflict: 'id', ignoreDuplicates: true });
+	}
+
 	async function loadPatients() {
 		loading = true;
-		// Load memberships for current user
-		const { data: memberData } = await supabase
-			.from('members')
+		await ensureProfile();
+		const { data: roleData } = await supabase
+			.from('user_roles')
 			.select('*')
 			.eq('user_id', session!.user.id);
 
-		members = memberData ?? [];
+		userRoles = roleData ?? [];
 
-		if (members.length === 0) {
+		if (userRoles.length === 0) {
 			loading = false;
 			return;
 		}
 
-		const patientIds = members.map((m) => m.patient_id);
+		const patientIds = userRoles.map((r) => r.patient_id);
 		const { data: patientData } = await supabase
 			.from('patients')
 			.select('*')
 			.in('id', patientIds)
-			.order('name');
+			.order('full_name');
 
 		patients = patientData ?? [];
 
-		// Auto-select if only one patient
 		if (patients.length === 1) {
 			selectedPatient = patients[0];
 		}
 		loading = false;
 	}
 
-	function currentMember(): Member | undefined {
-		return members.find((m) => m.patient_id === selectedPatient?.id);
+	function currentRole(): UserRole | undefined {
+		return userRoles.find((r) => r.patient_id === selectedPatient?.id);
 	}
 </script>
 
@@ -79,12 +87,10 @@
 {:else}
 	<AppShell
 		patient={selectedPatient}
-		member={currentMember()!}
+		userRole={currentRole()!}
 		userId={session.user.id}
 		userEmail={session.user.email ?? ''}
 		onSwitchPatient={() => (selectedPatient = null)}
-		onSignOut={async () => {
-			await supabase.auth.signOut();
-		}}
+		onSignOut={async () => { await supabase.auth.signOut(); }}
 	/>
 {/if}

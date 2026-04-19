@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
-	import type { Member } from '$lib/types';
+	import type { UserRole } from '$lib/types';
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
@@ -9,14 +9,15 @@
 
 	let { patientId, currentUserId }: { patientId: string; currentUserId: string } = $props();
 
-	interface MemberWithEmail extends Member {
+	interface RoleWithProfile extends UserRole {
+		full_name?: string;
 		email?: string;
 	}
 
-	let members = $state<MemberWithEmail[]>([]);
+	let roles = $state<RoleWithProfile[]>([]);
 	let loading = $state(true);
 	let inviteEmail = $state('');
-	let inviteCoordinator = $state(false);
+	let inviteRole = $state<'coordinator' | 'caregiver'>('caregiver');
 	let inviting = $state(false);
 	let error = $state('');
 
@@ -25,22 +26,22 @@
 	async function load() {
 		loading = true;
 		const { data } = await supabase
-			.from('members')
+			.from('user_roles')
 			.select('*')
 			.eq('patient_id', patientId);
 
 		if (!data) { loading = false; return; }
 
-		// Fetch user emails via user_profiles view
-		const userIds = data.map((m) => m.user_id);
+		const userIds = data.map((r) => r.user_id);
 		const { data: profiles } = await supabase
-			.from('user_profiles')
-			.select('id, email')
+			.from('users')
+			.select('id, full_name, email')
 			.in('id', userIds);
 
-		members = data.map((m) => ({
-			...m,
-			email: profiles?.find((p) => p.id === m.user_id)?.email
+		roles = data.map((r) => ({
+			...r,
+			full_name: profiles?.find((p) => p.id === r.user_id)?.full_name,
+			email: profiles?.find((p) => p.id === r.user_id)?.email
 		}));
 		loading = false;
 	}
@@ -50,9 +51,8 @@
 		inviting = true;
 		error = '';
 
-		// Look up user by email
 		const { data: profiles } = await supabase
-			.from('user_profiles')
+			.from('users')
 			.select('id, email')
 			.eq('email', inviteEmail.trim())
 			.limit(1);
@@ -63,27 +63,25 @@
 			return;
 		}
 
-		const targetUserId = profiles[0].id;
-		const { error: err } = await supabase.from('members').insert({
-			user_id: targetUserId,
+		const { error: err } = await supabase.from('user_roles').insert({
+			user_id: profiles[0].id,
 			patient_id: patientId,
-			coordinator: inviteCoordinator
+			role: inviteRole
 		});
 
 		if (err) {
 			error = err.message.includes('unique') ? 'That user is already a member.' : err.message;
 		} else {
 			inviteEmail = '';
-			inviteCoordinator = false;
 			await load();
 		}
 		inviting = false;
 	}
 
-	async function removeMember(member: MemberWithEmail) {
-		if (member.user_id === currentUserId) return;
-		await supabase.from('members').delete().eq('id', member.id);
-		members = members.filter((m) => m.id !== member.id);
+	async function removeRole(role: RoleWithProfile) {
+		if (role.user_id === currentUserId) return;
+		await supabase.from('user_roles').delete().eq('id', role.id);
+		roles = roles.filter((r) => r.id !== role.id);
 	}
 </script>
 
@@ -94,18 +92,18 @@
 		<p class="text-muted-foreground text-xs">Loading…</p>
 	{:else}
 		<div class="mb-4 space-y-2">
-			{#each members as member}
+			{#each roles as role}
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2">
-						<span class="text-sm">{member.email ?? member.user_id}</span>
-						<Badge variant={member.coordinator ? 'default' : 'secondary'} class="text-xs">
-							{member.coordinator ? 'Coordinator' : 'Caretaker'}
+						<span class="text-sm">{role.full_name ?? role.email ?? role.user_id}</span>
+						<Badge variant={role.role === 'coordinator' ? 'default' : 'secondary'} class="text-xs capitalize">
+							{role.role}
 						</Badge>
 					</div>
-					{#if member.user_id !== currentUserId}
+					{#if role.user_id !== currentUserId}
 						<button
-							class="text-slate-300 hover:text-red-500 transition-colors"
-							onclick={() => removeMember(member)}
+							class="text-slate-300 transition-colors hover:text-red-500"
+							onclick={() => removeRole(role)}
 							aria-label="Remove member"
 						>
 							<Trash2 class="h-4 w-4" />
@@ -116,16 +114,14 @@
 		</div>
 
 		<div class="flex gap-2">
-			<Input
-				type="email"
-				placeholder="Email to invite"
-				bind:value={inviteEmail}
-				class="flex-1 h-9 text-sm"
-			/>
-			<label class="flex items-center gap-1 text-xs whitespace-nowrap">
-				<input type="checkbox" bind:checked={inviteCoordinator} class="rounded" />
-				Coordinator
-			</label>
+			<Input type="email" placeholder="Email to invite" bind:value={inviteEmail} class="h-9 flex-1 text-sm" />
+			<select
+				bind:value={inviteRole}
+				class="border-input bg-background h-9 rounded-md border px-2 text-sm"
+			>
+				<option value="caregiver">Caregiver</option>
+				<option value="coordinator">Coordinator</option>
+			</select>
 			<Button size="sm" onclick={invite} disabled={inviting || !inviteEmail.trim()}>
 				{inviting ? '…' : 'Add'}
 			</Button>
