@@ -112,15 +112,22 @@ begin
         email     = excluded.email;
 
   -- 3. Create patient (skip if name already exists)
+  --    Disable the auto-assign trigger first — it calls auth.uid() which is
+  --    null when running as the postgres superuser from the CLI, causing a
+  --    not-null violation on user_roles.user_id. We assign the role manually.
   select id into v_patient_id
   from public.patients
   where full_name = '$PATIENT_NAME'
   limit 1;
 
   if v_patient_id is null then
+    alter table public.patients disable trigger trg_assign_coordinator_on_patient_create;
+
     insert into public.patients (full_name, dob)
     values ('$PATIENT_NAME', $DOB_SQL)
     returning id into v_patient_id;
+
+    alter table public.patients enable trigger trg_assign_coordinator_on_patient_create;
 
     raise notice 'Created patient % with id %', '$PATIENT_NAME', v_patient_id;
   else

@@ -2,12 +2,11 @@
 	import type { Patient, UserRole } from '$lib/types';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
 	import ScheduleTab from '$lib/components/ScheduleTab.svelte';
 	import TasksTab from '$lib/components/TasksTab.svelte';
 	import NotesTab from '$lib/components/NotesTab.svelte';
 	import MembersPanel from '$lib/components/MembersPanel.svelte';
-	import { CalendarDays, ListChecks, FileText, Users, ChevronDown, LogOut, ArrowLeftRight } from 'lucide-svelte';
+	import { CalendarDays, ListChecks, FileText, Users, LogOut, ArrowLeftRight } from 'lucide-svelte';
 
 	let { patient, userRole, userId, userFullName, onSwitchPatient, onSignOut }: {
 		patient: Patient;
@@ -19,9 +18,7 @@
 	} = $props();
 
 	let showMembers = $state(false);
-	let activeTab = $state('schedule');
-	// Incrementing this causes TasksTab to reload — used when ScheduleTab saves a task
-	let taskRefreshKey = $state(0);
+	let activeTab = $state('tasks');
 
 	let isCoordinator = $derived(userRole.role === 'coordinator');
 	let canManageTasks = $derived(userRole.role === 'coordinator' || userRole.role === 'gov_coordinator');
@@ -33,7 +30,7 @@
 	};
 </script>
 
-<div class="flex h-screen flex-col bg-slate-50">
+<div class="flex h-screen flex-col bg-background">
 	<!-- Header -->
 	<header class="sticky top-0 z-10 border-b bg-card shadow-sm">
 		<div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
@@ -79,7 +76,7 @@
 
 	<!-- Members panel -->
 	{#if showMembers && isCoordinator}
-		<div class="border-b bg-white shadow-sm">
+		<div class="border-b bg-card shadow-sm">
 			<div class="mx-auto max-w-3xl px-4 py-4">
 				<MembersPanel patientId={patient.id} currentUserId={userId} />
 			</div>
@@ -89,28 +86,20 @@
 	<!-- Tab layout -->
 	<div class="flex-1 overflow-hidden">
 		<Tabs bind:value={activeTab} class="flex h-full flex-col">
-			<div class="flex-1 overflow-y-auto">
-				<TabsContent value="schedule" class="m-0 p-0">
+			<div class="relative flex-1 overflow-hidden">
+				<TabsContent value="tasks" class="absolute inset-0 m-0 overflow-y-auto p-0">
 					<div class="mx-auto max-w-3xl">
-						<ScheduleTab
-							patientId={patient.id}
-							{userId}
-							{canManageTasks}
-							onTaskSaved={() => taskRefreshKey++}
-						/>
+						<TasksTab patientId={patient.id} {userId} {canManageTasks} />
 					</div>
 				</TabsContent>
-				<TabsContent value="tasks" class="m-0 p-0">
-					<div class="mx-auto max-w-3xl">
-						<TasksTab
-							patientId={patient.id}
-							{userId}
-							{canManageTasks}
-							refreshKey={taskRefreshKey}
-						/>
+
+				<TabsContent value="schedule" class="absolute inset-0 m-0 p-0">
+					<div class="mx-auto h-full max-w-3xl">
+						<ScheduleTab patientId={patient.id} {userId} />
 					</div>
 				</TabsContent>
-				<TabsContent value="notes" class="m-0 p-0">
+
+				<TabsContent value="notes" class="absolute inset-0 m-0 overflow-y-auto p-0">
 					<div class="mx-auto max-w-3xl">
 						<NotesTab patientId={patient.id} {userId} />
 					</div>
@@ -118,16 +107,16 @@
 			</div>
 
 			<!-- Bottom tab bar -->
-			<div class="border-t bg-white">
+			<div class="shrink-0 border-t bg-card">
 				<div class="mx-auto max-w-3xl">
-					<TabsList class="h-16 w-full rounded-none bg-white px-2">
-						<TabsTrigger value="schedule" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
-							<CalendarDays class="h-5 w-5" />
-							Schedule
-						</TabsTrigger>
+					<TabsList class="h-16 w-full rounded-none bg-card px-2">
 						<TabsTrigger value="tasks" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
 							<ListChecks class="h-5 w-5" />
 							Tasks
+						</TabsTrigger>
+						<TabsTrigger value="schedule" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
+							<CalendarDays class="h-5 w-5" />
+							Schedule
 						</TabsTrigger>
 						<TabsTrigger value="notes" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
 							<FileText class="h-5 w-5" />

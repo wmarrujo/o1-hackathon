@@ -46,3 +46,18 @@ export interface UserProfile {
 	email: string;
 	full_name: string;
 }
+
+export interface ScheduleEvent {
+	id: string;
+	patient_id: string;
+	assigned_user_id: string | null;
+	ics_uid: string;
+	title: string;
+	event_type: 'shift' | 'appointment' | 'medication' | 'other';
+	dtstart: string;
+	dtend: string;
+	rrule: string | null;
+	status: 'TENTATIVE' | 'CONFIRMED' | 'CANCELLED';
+	additional_notes: string | null;
+	created_at: string;
+}
