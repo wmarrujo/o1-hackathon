@@ -29,7 +29,8 @@ create table public.notes (
   task_id    uuid references public.tasks(id) on delete set null,
   author_id  uuid not null references public.users(id) on delete cascade,
   content    text not null,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  edited_on  timestamptz
 );
 
 create index on public.notes (patient_id, created_at desc);
