@@ -1,3 +1,15 @@
+/**
+ * POST /speech-to-text/api
+ *
+ * Transcribes an audio recording using the ElevenLabs Scribe API.
+ *
+ * Request: multipart/form-data
+ *   audio  File  — audio blob (webm) recorded in the browser
+ *
+ * Response 200: { text: string }
+ * Response 400: { error: string }  — missing audio field
+ * Response 5xx: { error: string }  — ElevenLabs error, forwarded as-is
+ */
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { ELEVENLABS_API_KEY } from '$env/static/private'

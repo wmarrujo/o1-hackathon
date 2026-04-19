@@ -6,7 +6,8 @@
 	import TasksTab from '$lib/components/TasksTab.svelte';
 	import NotesTab from '$lib/components/NotesTab.svelte';
 	import MembersPanel from '$lib/components/MembersPanel.svelte';
-	import { CalendarDays, ListChecks, FileText, Users, LogOut, ArrowLeftRight } from 'lucide-svelte';
+	import { CalendarDays, ListChecks, FileText, Users, LogOut, ArrowLeftRight, ClipboardCheck } from 'lucide-svelte';
+	import CheckoutTab from '$lib/components/CheckoutTab.svelte';
 
 	let { patient, userRole, userId, userFullName, onSwitchPatient, onSignOut }: {
 		patient: Patient;
@@ -104,6 +105,14 @@
 						<NotesTab patientId={patient.id} {userId} />
 					</div>
 				</TabsContent>
+
+				{#if !isCoordinator}
+					<TabsContent value="checkout" class="absolute inset-0 m-0 overflow-y-auto p-0">
+						<div class="mx-auto max-w-3xl">
+							<CheckoutTab patientId={patient.id} />
+						</div>
+					</TabsContent>
+				{/if}
 			</div>
 
 			<!-- Bottom tab bar -->
@@ -122,6 +131,12 @@
 							<FileText class="h-5 w-5" />
 							Notes
 						</TabsTrigger>
+						{#if !isCoordinator}
+							<TabsTrigger value="checkout" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
+								<ClipboardCheck class="h-5 w-5" />
+								Check-out
+							</TabsTrigger>
+						{/if}
 					</TabsList>
 				</div>
 			</div>
