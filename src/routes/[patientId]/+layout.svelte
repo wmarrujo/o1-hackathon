@@ -4,7 +4,7 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { Button } from '$lib/components/ui/button';
 	import MembersPanel from '$lib/components/MembersPanel.svelte';
-	import { CalendarDays, ListChecks, FileText, Users, LogOut, ArrowLeftRight, ClipboardCheck } from 'lucide-svelte';
+	import { CalendarDays, ListChecks, FileText, Users, LogOut, ArrowLeftRight, ClipboardCheck, Stethoscope } from 'lucide-svelte';
 
 	let { data, children } = $props();
 
@@ -20,6 +20,10 @@
 
 	function isActive(tab: string) {
 		return page.url.pathname === `/${data.patient.id}/${tab}`;
+	}
+
+	function isBaseActive() {
+		return page.url.pathname === `/${data.patient.id}`;
 	}
 
 	async function signOut() {
@@ -88,6 +92,15 @@
 	<nav class="shrink-0 border-t bg-card">
 		<div class="mx-auto max-w-3xl">
 			<div class="flex h-16 w-full px-2">
+				{#if isCoordinator}
+					<a
+						href="/{data.patient.id}"
+						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isBaseActive() ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<Stethoscope class="h-5 w-5" />
+						Check-in
+					</a>
+				{/if}
 				<a
 					href="/{data.patient.id}/tasks"
 					class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('tasks') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
