@@ -5,13 +5,12 @@
 -- =============================================================================
 
 -- Auth users (bypasses email confirmation)
-insert into auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, aud, role, created_at, updated_at)
+insert into auth.users (id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, aud, role, created_at, updated_at)
 values
   (
     '00000000-0000-0000-0000-000000000001',
-    '00000000-0000-0000-0000-000000000000',
     'alice@demo.com',
-    crypt('password123', gen_salt('bf')),
+    extensions.crypt('password123', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}',
@@ -22,9 +21,8 @@ values
   ),
   (
     '00000000-0000-0000-0000-000000000002',
-    '00000000-0000-0000-0000-000000000000',
     'bob@demo.com',
-    crypt('password123', gen_salt('bf')),
+    extensions.crypt('password123', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}',
@@ -35,9 +33,8 @@ values
   ),
   (
     '00000000-0000-0000-0000-000000000003',
-    '00000000-0000-0000-0000-000000000000',
     'maria@demo.com',
-    crypt('password123', gen_salt('bf')),
+    extensions.crypt('password123', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
     '{}',
@@ -46,6 +43,13 @@ values
     now(),
     now()
   );
+
+-- Auth identities (required for password login)
+insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+values
+  (uuid_generate_v4(), '00000000-0000-0000-0000-000000000001', 'alice@demo.com', 'email', '{"sub":"00000000-0000-0000-0000-000000000001","email":"alice@demo.com"}', now(), now(), now()),
+  (uuid_generate_v4(), '00000000-0000-0000-0000-000000000002', 'bob@demo.com',   'email', '{"sub":"00000000-0000-0000-0000-000000000002","email":"bob@demo.com"}',   now(), now(), now()),
+  (uuid_generate_v4(), '00000000-0000-0000-0000-000000000003', 'maria@demo.com', 'email', '{"sub":"00000000-0000-0000-0000-000000000003","email":"maria@demo.com"}', now(), now(), now());
 
 -- App-level user profiles
 insert into public.users (id, full_name, email, preferred_language)
