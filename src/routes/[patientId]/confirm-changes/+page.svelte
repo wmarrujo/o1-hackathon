@@ -66,7 +66,7 @@
 
       const noteInserts = changes.notes.length > 0
         ? [supabase.from('notes').insert(
-            changes.notes.map((n) => ({ ...n, patient_id: patientId, author_id: user.id }))
+            changes.notes.map((n) => ({ ...n, author_id: user.id }))
           )]
         : []
 
