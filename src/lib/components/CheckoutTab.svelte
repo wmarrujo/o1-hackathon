@@ -41,6 +41,7 @@
 	let followUpAudioChunks: Blob[] = [];
 	let mediaRecorder: MediaRecorder | null = null;
 	let audioChunks: Blob[] = [];
+	let agentAbortController: AbortController | null = null;
 
 	// Visualizer
 	let barHeights = $state<number[]>(Array(28).fill(0));
@@ -75,6 +76,9 @@
 	let isConfirming = $state(false);
 
 	function reset() {
+		agentAbortController?.abort();
+		agentAbortController = null;
+		isSubmitting = false;
 		phase = 'input';
 		transcript = '';
 		textInput = '';
@@ -133,6 +137,9 @@
 	}
 
 	async function sendToAgent(msgs: Message[]) {
+		agentAbortController?.abort();
+		const controller = new AbortController();
+		agentAbortController = controller;
 		isSubmitting = true;
 		error = '';
 		try {
@@ -140,6 +147,7 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: await authHeader() },
 				body: JSON.stringify({ patient_id: patientId, messages: msgs }),
+				signal: controller.signal,
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.error ?? 'Agent error');
@@ -154,9 +162,13 @@
 				phase = 'confirm';
 			}
 		} catch (e: any) {
+			if (e.name === 'AbortError') return;
 			error = e.message;
 		} finally {
-			isSubmitting = false;
+			if (agentAbortController === controller) {
+				agentAbortController = null;
+				isSubmitting = false;
+			}
 		}
 	}
 

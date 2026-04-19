@@ -202,7 +202,7 @@ for (const u of USERS) {
 	const { error: authErr } = await supabase.auth.admin.createUser({
 		id: u.id,
 		email: u.email,
-		password: 'password123',
+		password: 'salus',
 		email_confirm: true,
 		user_metadata: { full_name: u.full_name }
 	});
@@ -213,7 +213,7 @@ for (const u of USERS) {
 		}
 		// User already exists (auth.users survives db reset) — ensure password is correct
 		const { error: updateErr } = await supabase.auth.admin.updateUserById(u.id, {
-			password: 'password123',
+			password: 'salus',
 			email_confirm: true,
 		});
 		if (updateErr) {
@@ -711,7 +711,7 @@ const { error: noteErr } = await supabase.from('notes').upsert([
 if (noteErr) { console.error('notes:', noteErr.message); process.exit(1); }
 console.log('✓ notes (11 total)');
 
-console.log('\nSign in at http://localhost:5173 with password: password123');
+console.log('\nSign in at http://localhost:5173 with password: salus');
 console.log('  Coordinator: dianne@demo.com');
 console.log('  Caregiver:   linda@demo.com');
 console.log('  Caregiver:   cathy@demo.com');
