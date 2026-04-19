@@ -21,6 +21,14 @@
 		{
 			quote: "We tried a shared Google Doc but there are no reminders, no structure. It's not built for this.",
 			source: 'Family coordinator'
+		},
+		{
+			quote: "The time it takes to call and text everyone just to get a basic update is incredible. Doctors don't always get current information from the caregiver. The whole care team would give better care with more knowledge, in real time.",
+			source: 'Family coordinator'
+		},
+		{
+			quote: "Right now I need to find a walking assistive device for someone recovering from surgery. The right kind for his height and weight, available in our state, cost, return policy, insurance coverage. I'm looking at 5 to 7 hours of calls and research. I wish I could just ask.",
+			source: 'Family coordinator'
 		}
 	];
 
@@ -37,7 +45,7 @@
 	onMount(() => {
 		const t = setInterval(() => {
 			if (autoplay) next();
-		}, 5000);
+		}, 8000);
 		return () => clearInterval(t);
 	});
 
@@ -60,7 +68,7 @@
 		{
 			icon: '🤝',
 			title: 'Unclear delegation',
-			body: "When roles aren't defined, the most available person ends up doing everything — and burning out."
+			body: "When roles aren't defined, the most available person ends up doing everything. Burnout follows."
 		}
 	];
 
@@ -117,7 +125,7 @@
 		{
 			icon: '🎙️',
 			title: 'Voice check-in',
-			body: 'Caregivers dictate what they did in plain language — even in another language! Salus parses and logs it.',
+			body: 'Caregivers dictate what they did in plain language, even in another language. Salus parses and logs it.',
 			badge: null
 		},
 		{
@@ -127,16 +135,23 @@
 			badge: null
 		},
 		{
-			icon: '🏥',
-			title: 'Health information hub',
-			body: 'Conditions, treatments, biometrics, documents all in one place, visible to the right people.',
-			badge: 'coming-soon'
-		},
-		{
 			icon: '📋',
 			title: 'AI shift summaries',
 			body: 'After each shift, Salus surfaces what was completed, what was missed, and what needs follow-up.',
 			badge: 'beta'
+		}
+	];
+
+	const comingSoonFeatures = [
+		{
+			icon: '🏥',
+			title: 'Health information hub',
+			body: 'Conditions, treatments, biometrics, documents all in one place, visible to the right people.'
+		},
+		{
+			icon: '🔍',
+			title: 'AI care research',
+			body: 'Ask plain questions and get answers: what equipment does your loved one need, where to find it, what insurance covers, and what programs can help.'
 		}
 	];
 </script>
@@ -274,16 +289,10 @@
 	<div class="mx-auto max-w-6xl">
 		<div class="mb-4 text-sm font-semibold uppercase tracking-widest text-primary">What you get</div>
 		<h2 class="mb-16 text-4xl font-bold">Every tool your care team needs.</h2>
-		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+		<div class="grid gap-6 md:grid-cols-4 lg:grid-cols-6">
 			{#each features as item}
-				<div
-					class="relative rounded-2xl border border-border bg-card p-6 transition-shadow duration-200 hover:shadow-md {item.badge === 'coming-soon' ? 'opacity-70' : ''}"
-				>
-					{#if item.badge === 'coming-soon'}
-						<span class="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-							Coming soon
-						</span>
-					{:else if item.badge === 'beta'}
+				<div class="relative md:col-span-2 rounded-2xl border border-border bg-card p-6 transition-shadow duration-200 hover:shadow-md">
+					{#if item.badge === 'beta'}
 						<span class="absolute right-4 top-4 rounded-full bg-accent/40 px-2.5 py-0.5 text-xs font-medium text-accent-foreground">
 							Beta
 						</span>
@@ -293,6 +302,22 @@
 					<p class="text-sm text-muted-foreground">{item.body}</p>
 				</div>
 			{/each}
+			<div class="relative md:col-span-2 lg:col-start-2 rounded-2xl border border-border bg-card p-6 opacity-70">
+				<span class="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+					Coming soon
+				</span>
+				<div class="mb-3 text-3xl">{comingSoonFeatures[0].icon}</div>
+				<h3 class="mb-2 text-lg font-semibold">{comingSoonFeatures[0].title}</h3>
+				<p class="text-sm text-muted-foreground">{comingSoonFeatures[0].body}</p>
+			</div>
+			<div class="relative md:col-span-2 rounded-2xl border border-border bg-card p-6 opacity-70">
+				<span class="absolute right-4 top-4 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+					Coming soon
+				</span>
+				<div class="mb-3 text-3xl">{comingSoonFeatures[1].icon}</div>
+				<h3 class="mb-2 text-lg font-semibold">{comingSoonFeatures[1].title}</h3>
+				<p class="text-sm text-muted-foreground">{comingSoonFeatures[1].body}</p>
+			</div>
 		</div>
 	</div>
 </section>
