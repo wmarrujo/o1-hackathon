@@ -16,6 +16,14 @@ values (
   'Dianne Henderson (daughter) — (555) 234-8765',
   'Dianne Henderson — (555) 234-8765',
   'Allergic to sulfa drugs. Prefers morning routine before 9am. Mild dementia — responds well to familiar faces and music from the 1960s. Diabetic — check blood sugar before meals. Likes her coffee with cream, no sugar.'
+),
+(
+  '00000000-0000-0000-0000-000000000011',
+  'Arturo Ramos',
+  '1952-03-15',
+  'Maria Ramos (wife) — (555) 412-9087',
+  'Sofia Ramos (daughter) — (555) 412-3321',
+  'Spanish is his primary language — he understands English but prefers Spanish. Parkinson''s disease — tremors worse in the morning before medication. Uses a walker. Loves telenovelas and coffee with two sugars. Do NOT give acetaminophen (liver concern).'
 )
 on conflict (id) do nothing;
 
@@ -38,7 +46,17 @@ values
    '00000000-0000-0000-0000-000000000010',
    'Mild Cognitive Impairment',
    'Early-stage dementia. Familiar routines and faces help with orientation. May become confused or agitated in the late afternoon (sundowning). Do not leave unattended near the stove. Use simple, short sentences and allow extra time for responses.',
-   '2023-06-10')
+   '2023-06-10'),
+  ('00000000-0000-0000-0002-000000000004',
+   '00000000-0000-0000-0000-000000000011',
+   'Parkinson''s Disease',
+   'Diagnosed stage 2. Managed with carbidopa-levodopa 25-100mg three times daily (8am, 1pm, 6pm). Tremor and rigidity worst first thing in the morning before the 8am dose — allow extra time for breakfast and dressing. Requires walker for all ambulation. Call Sofia if he falls or refuses medication.',
+   '2019-09-12'),
+  ('00000000-0000-0000-0002-000000000005',
+   '00000000-0000-0000-0000-000000000011',
+   'Osteoarthritis (knees)',
+   'Bilateral knee osteoarthritis. Topical diclofenac gel as needed for pain — apply to knees twice daily. AVOID acetaminophen (liver concern from prior hepatitis). Gentle range-of-motion exercises in the morning help with stiffness.',
+   '2016-04-22')
 on conflict (id) do nothing;
 
 -- Schedule events (assigned_user_id left null — set by seed-auth-users.js after users exist)

@@ -4,6 +4,7 @@
 	import type { Patient } from '$lib/types';
 	import { Card, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import SalusLogo from '$lib/components/SalusLogo.svelte';
 
 	let { data } = $props();
 </script>
@@ -11,7 +12,7 @@
 <div class="flex min-h-screen flex-col items-center justify-center bg-background p-4">
 	<div class="w-full max-w-md">
 		<div class="mb-6 text-center">
-			<div class="mb-2 text-4xl">🏥</div>
+			<div class="mb-2 flex justify-center"><SalusLogo class="h-16 w-16" /></div>
 			<h1 class="font-display text-2xl font-bold">Salus</h1>
 			<p class="text-muted-foreground mt-1 text-sm">Signed in as {data.userEmail}</p>
 		</div>

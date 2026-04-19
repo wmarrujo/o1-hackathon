@@ -33,6 +33,7 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 
 // ── IDs ────────────────────────────────────────────────────────────────────────
 const PATIENT_ID = '00000000-0000-0000-0000-000000000010';
+const PATIENT_ID_2 = '00000000-0000-0000-0000-000000000011';
 
 // ── Patient ────────────────────────────────────────────────────────────────────
 // ignoreDuplicates: true → ON CONFLICT DO NOTHING, so the trigger that
@@ -200,6 +201,18 @@ for (const u of USERS) {
 	console.log(`✓ ${u.email} (${u.role})`);
 }
 
+// ── Second patient (Arturo Ramos) — role assignments ──────────────────────────
+const PATIENT_2_ROLES = [
+	{ user_id: LINDA, role: 'coordinator' },
+];
+for (const r of PATIENT_2_ROLES) {
+	const { error } = await supabase
+		.from('user_roles')
+		.upsert({ user_id: r.user_id, patient_id: PATIENT_ID_2, role: r.role }, { onConflict: 'user_id,patient_id' });
+	if (error) { console.error(`user_roles (patient 2, ${r.user_id}):`, error.message); process.exit(1); }
+}
+console.log(`✓ patient 2 roles (${PATIENT_2_ROLES.length} total)`);
+
 // ── Schedule shifts ────────────────────────────────────────────────────────────
 // seed.sql already has shift 001 (Apr 18 morning) and 002 (Apr 18 evening),
 // and appointment 003 (Apr 22). We assign those plus add a full two-week spread.
@@ -224,10 +237,10 @@ const SHIFTS = [
 	// Apr 17 Fri
 	{ id: '00000000-0000-0000-0001-000000000012', title: 'Morning Care Shift', dtstart: '2026-04-17 12:00:00+00', dtend: '2026-04-17 16:00:00+00', assignee: PEGGY,  notes: null },
 	{ id: '00000000-0000-0000-0001-000000000013', title: 'Evening Care Shift', dtstart: '2026-04-17 21:00:00+00', dtend: '2026-04-17 23:00:00+00', assignee: LINDA,  notes: null },
-	// Apr 18 Sat — already in seed.sql (001 = morning/Dianne, 002 = evening/Linda)
+	// Apr 18 Sat — already in seed.sql (001 = morning, 002 = evening); assignments set below
 	// Apr 19 Sun — today
-	{ id: '00000000-0000-0000-0001-000000000014', title: 'Morning Care Shift', dtstart: '2026-04-19 12:00:00+00', dtend: '2026-04-19 16:00:00+00', assignee: KELSEY, notes: 'Sunday routine — Joyce likes hymns on the radio in the morning.' },
-	{ id: '00000000-0000-0000-0001-000000000015', title: 'Evening Care Shift', dtstart: '2026-04-19 21:00:00+00', dtend: '2026-04-19 23:00:00+00', assignee: CATHY,  notes: null },
+	{ id: '00000000-0000-0000-0001-000000000014', title: 'Morning Care Shift', dtstart: '2026-04-19 12:00:00+00', dtend: '2026-04-19 16:00:00+00', assignee: DIANNE, notes: 'Sunday routine — Joyce likes hymns on the radio in the morning.' },
+	{ id: '00000000-0000-0000-0001-000000000015', title: 'Evening Care Shift', dtstart: '2026-04-19 21:00:00+00', dtend: '2026-04-19 23:00:00+00', assignee: LINDA,  notes: null },
 
 	// ── Week of Apr 20 (Mon) – Apr 26 (Sun) — next week ─────────────────────
 	// Apr 20 Mon
@@ -273,8 +286,8 @@ if (shiftsErr) { console.error('schedule_events (shifts):', shiftsErr.message); 
 
 // Assign the seed.sql shifts (001 = morning Apr 18, 002 = evening Apr 18, 003 = Dr. Smith)
 const seedShiftAssignments = [
-	{ id: '00000000-0000-0000-0001-000000000001', assigned_user_id: DIANNE },
-	{ id: '00000000-0000-0000-0001-000000000002', assigned_user_id: LINDA  },
+	{ id: '00000000-0000-0000-0001-000000000001', assigned_user_id: KELSEY },
+	{ id: '00000000-0000-0000-0001-000000000002', assigned_user_id: CATHY  },
 	{ id: '00000000-0000-0000-0001-000000000003', assigned_user_id: DIANNE },
 ];
 for (const { id, assigned_user_id } of seedShiftAssignments) {
@@ -334,7 +347,7 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 		patient_id: PATIENT_ID,
 		description: 'Print 30-day blood pressure log for Dr. Smith appointment',
 		due_time: '2026-04-22T11:00:00+00:00',
-		assignee_id: PEGGY,
+		assignee_id: LINDA,
 		complete: false,
 		created_by: DIANNE,
 		created_at: '2026-04-18T09:00:00+00:00'
@@ -354,7 +367,7 @@ const { error: taskErr } = await supabase.from('tasks').upsert([
 		patient_id: PATIENT_ID,
 		description: 'Check and replace smoke detector batteries',
 		due_time: '2026-04-21T17:00:00+00:00',
-		assignee_id: CATHY,
+		assignee_id: LINDA,
 		complete: false,
 		created_by: DIANNE,
 		created_at: '2026-04-17T11:00:00+00:00'

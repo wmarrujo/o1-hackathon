@@ -4,12 +4,12 @@ import type { LayoutServerLoad } from './$types'
 export const load: LayoutServerLoad = async ({ params, locals }) => {
 	const { supabase, session } = locals
 
-	const { data: role } = await supabase
+	const { data: allRoles } = await supabase
 		.from('user_roles')
 		.select('*')
 		.eq('user_id', session!.user.id)
-		.eq('patient_id', params.patientId)
-		.single()
+
+	const role = allRoles?.find((r) => r.patient_id === params.patientId)
 
 	// Return 403 for both "patient doesn't exist" and "no access" — don't leak which IDs are real
 	if (!role) error(403, 'Forbidden')
@@ -33,6 +33,7 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 		userRole: role,
 		userId: session!.user.id,
 		userFullName: userProfile?.full_name ?? session!.user.email?.split('@')[0] ?? 'Unknown',
-		canManageTasks: role.role === 'coordinator' || role.role === 'gov_coordinator'
+		canManageTasks: role.role === 'coordinator' || role.role === 'gov_coordinator',
+		patientCount: allRoles?.length ?? 1
 	}
 }
