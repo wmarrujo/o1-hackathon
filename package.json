@@ -1,5 +1,5 @@
 {
-	"name": "myapp",
+	"name": "salus",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -9,7 +9,8 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"db:reset": "supabase db reset"
 	},
 	"devDependencies": {
 		"@fontsource-variable/inter": "^5.2.8",
@@ -24,6 +25,7 @@
 		"lucide-svelte": "^1.0.1",
 		"mode-watcher": "^1.1.0",
 		"shadcn-svelte": "^1.2.7",
+		"supabase": "^2.92.1",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
 		"svelte-sonner": "^1.1.0",

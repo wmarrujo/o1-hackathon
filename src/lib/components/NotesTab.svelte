@@ -54,7 +54,7 @@
 <div class="p-4 pb-6">
 	<div class="mb-5 flex items-center justify-between">
 		<div>
-			<h2 class="text-lg font-semibold">Notes</h2>
+			<h2 class="font-display text-lg font-semibold">Notes</h2>
 			<p class="text-muted-foreground text-xs">{notes.length} note{notes.length === 1 ? '' : 's'}</p>
 		</div>
 		<Button size="sm" variant={showCompose ? 'secondary' : 'default'} onclick={() => (showCompose = !showCompose)}>

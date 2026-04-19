@@ -1,4 +1,4 @@
-# Business logic requirements for "Coordinaire" (name pending)
+# Business logic requirements for Salus
 
 ## Tech stack
  - **Frontend**: SvelteKit, Tailwind CSS, shadcn-svelte
