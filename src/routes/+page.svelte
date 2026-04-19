@@ -19,7 +19,7 @@
 			source: 'Family coordinator'
 		},
 		{
-			quote: "We tried a shared Google Doc but there are no reminders, no structure — it's not built for this.",
+			quote: "We tried a shared Google Doc but there are no reminders, no structure. It's not built for this.",
 			source: 'Family coordinator'
 		}
 	];
@@ -50,7 +50,7 @@
 		{
 			icon: '🔄',
 			title: 'Coordination chaos',
-			body: 'Multiple family members, multiple caregivers — no single source of truth. Effort gets duplicated and things get missed.'
+			body: 'Multiple family members, multiple caregivers, no single source of truth. Effort gets duplicated and things get missed.'
 		},
 		{
 			icon: '👁️',
@@ -67,22 +67,22 @@
 	const medicalPoints = [
 		{
 			label: 'Fragmented information',
-			desc: "Doctor visits, new diagnoses, updated needs — this information rarely makes it to everyone who needs it."
+			desc: "Doctor visits, new diagnoses, and updated needs rarely makes it to everyone who needs it."
 		},
 		{
 			label: 'Hard-to-find resources',
-			desc: 'Grants, equipment, government programs — they exist, but finding them is a part-time job.'
+			desc: 'Grants, equipment, and government programs exist, but finding them is a part-time job.'
 		},
 		{
 			label: 'No caregiver guidance',
-			desc: "Aides often don't know what's expected of them — especially across language and cultural barriers."
+			desc: "Aides often don't know what's expected of them, especially across language and cultural barriers."
 		},
 		{
 			label: 'Emergency info buried',
-			desc: "Contacts, conditions, allergies — critical information that should be instantly accessible to everyone."
+			desc: "Contacts, conditions, and allergies are critical information that should be instantly accessible to everyone."
 		}
 	];
-
+	
 	const steps = [
 		{
 			step: '01',
@@ -117,7 +117,7 @@
 		{
 			icon: '🎙️',
 			title: 'Voice check-in',
-			body: 'Caregivers dictate what they did in plain language — even in another language. Salus parses and logs it.',
+			body: 'Caregivers dictate what they did in plain language — even in another language! Salus parses and logs it.',
 			badge: null
 		},
 		{
@@ -129,7 +129,7 @@
 		{
 			icon: '🏥',
 			title: 'Health information hub',
-			body: 'Conditions, treatments, biometrics, documents — all in one place, visible to the right people.',
+			body: 'Conditions, treatments, biometrics, documents all in one place, visible to the right people.',
 			badge: 'coming-soon'
 		},
 		{
@@ -167,7 +167,7 @@
 		</h1>
 		<p class="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl">
 			Salus gives family coordinators a single place to manage caregivers, track tasks, and stay
-			informed — so your loved one gets consistent, accountable care.
+			informed so your loved one gets consistent, accountable care.
 		</p>
 		<div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
 			<Button size="lg" href="/login?signup=true" class="px-10 py-6 text-base">Get Started</Button>
@@ -199,7 +199,7 @@
 		<h2 class="mb-4 max-w-2xl text-4xl font-bold">Caring for someone is already hard enough.</h2>
 		<p class="mb-16 max-w-2xl text-lg text-muted-foreground">
 			When multiple people are involved in someone's care, coordination breaks down fast. Important
-			things slip through the cracks — not out of negligence, but because there's no shared system
+			things slip through the cracks. This is not out of negligence, but because there's no shared system
 			to catch them.
 		</p>
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -225,7 +225,7 @@
 				<h2 class="mb-6 text-4xl font-bold">The medical system wasn't built for families.</h2>
 				<p class="mb-4 text-lg text-muted-foreground">
 					Navigating healthcare on behalf of a loved one means tracking conditions, sourcing
-					equipment, researching grants, and relaying everything to a rotating cast of caregivers —
+					equipment, researching grants, and relaying everything to a rotating cast of caregivers,
 					in a system not designed to help you do any of it.
 				</p>
 				<p class="text-lg text-muted-foreground">
