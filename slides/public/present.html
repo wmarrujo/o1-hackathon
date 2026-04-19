@@ -3,20 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <title>Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
   <style>
+    :root {
+      --r-heading-font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --r-main-font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --r-heading-font-weight: 700;
+      --r-heading-letter-spacing: -0.02em;
+      --r-heading-text-transform: none;
+      --r-main-font-size: 38px;
+      --r-heading1-size: 2.4em;
+      --r-heading2-size: 1.6em;
+      --r-heading3-size: 1.25em;
+      --r-link-color: #7dd3fc;
+      --r-link-color-hover: #bae6fd;
+    }
+
+    .reveal {
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      text-shadow: none;
+    }
+
+    .reveal h1 { letter-spacing: -0.03em; }
+
+    .reveal strong {
+      color: #7dd3fc;
+      font-weight: 700;
+    }
+
+    .reveal blockquote {
+      background: rgba(255,255,255,0.07);
+      border-left: 4px solid #7dd3fc;
+      border-radius: 8px;
+      padding: 0.6em 1em;
+      font-style: italic;
+      box-shadow: none;
+      width: 90%;
+    }
+
+    .reveal table {
+      border-collapse: collapse;
+      font-size: 0.78em;
+    }
+    .reveal table th {
+      background: rgba(125, 211, 252, 0.15);
+      color: #7dd3fc;
+      font-weight: 700;
+      padding: 0.5em 0.8em;
+    }
+    .reveal table td {
+      padding: 0.4em 0.8em;
+      border-color: rgba(255,255,255,0.12);
+    }
+
     .back-link {
       position: fixed;
       top: 12px;
       left: 16px;
       z-index: 9999;
-      color: rgba(255,255,255,0.5);
-      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 0.75rem;
       text-decoration: none;
+      letter-spacing: 0.02em;
     }
-    .back-link:hover { color: white; }
+    .back-link:hover { color: rgba(255,255,255,0.85); }
   </style>
 </head>
 <body>
