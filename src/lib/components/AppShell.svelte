@@ -24,6 +24,7 @@
 	let taskRefreshKey = $state(0);
 
 	let isCoordinator = $derived(userRole.role === 'coordinator');
+	let canManageTasks = $derived(userRole.role === 'coordinator' || userRole.role === 'gov_coordinator');
 
 	const roleLabel: Record<string, string> = {
 		coordinator: 'Coordinator',
@@ -34,7 +35,7 @@
 
 <div class="flex h-screen flex-col bg-slate-50">
 	<!-- Header -->
-	<header class="sticky top-0 z-10 border-b bg-white shadow-sm">
+	<header class="sticky top-0 z-10 border-b bg-card shadow-sm">
 		<div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
 			<!-- Left: user info -->
 			<div class="flex items-center gap-3">
@@ -46,7 +47,7 @@
 					<div class="flex items-center gap-1.5">
 						<span class="text-muted-foreground text-xs">{roleLabel[userRole.role] ?? userRole.role}</span>
 						<span class="text-muted-foreground text-xs">·</span>
-						<span class="text-xs font-medium text-slate-600">{patient.full_name}</span>
+						<span class="text-xs font-medium text-foreground/60">{patient.full_name}</span>
 					</div>
 				</div>
 			</div>
@@ -94,6 +95,7 @@
 						<ScheduleTab
 							patientId={patient.id}
 							{userId}
+							{canManageTasks}
 							onTaskSaved={() => taskRefreshKey++}
 						/>
 					</div>
@@ -103,6 +105,7 @@
 						<TasksTab
 							patientId={patient.id}
 							{userId}
+							{canManageTasks}
 							refreshKey={taskRefreshKey}
 						/>
 					</div>
@@ -116,20 +119,22 @@
 
 			<!-- Bottom tab bar -->
 			<div class="border-t bg-white">
-				<TabsList class="mx-auto h-16 w-full max-w-3xl rounded-none bg-white px-2">
-					<TabsTrigger value="schedule" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
-						<CalendarDays class="h-5 w-5" />
-						Schedule
-					</TabsTrigger>
-					<TabsTrigger value="tasks" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
-						<ListChecks class="h-5 w-5" />
-						Tasks
-					</TabsTrigger>
-					<TabsTrigger value="notes" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
-						<FileText class="h-5 w-5" />
-						Notes
-					</TabsTrigger>
-				</TabsList>
+				<div class="mx-auto max-w-3xl">
+					<TabsList class="h-16 w-full rounded-none bg-white px-2">
+						<TabsTrigger value="schedule" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
+							<CalendarDays class="h-5 w-5" />
+							Schedule
+						</TabsTrigger>
+						<TabsTrigger value="tasks" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
+							<ListChecks class="h-5 w-5" />
+							Tasks
+						</TabsTrigger>
+						<TabsTrigger value="notes" class="flex flex-1 flex-col gap-0.5 py-2 text-xs">
+							<FileText class="h-5 w-5" />
+							Notes
+						</TabsTrigger>
+					</TabsList>
+				</div>
 			</div>
 		</Tabs>
 	</div>

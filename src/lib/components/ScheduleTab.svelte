@@ -7,9 +7,10 @@
 	import { CheckCircle2, Circle, MapPin, RefreshCw, CalendarX } from 'lucide-svelte';
 	import TaskFormModal from '$lib/components/TaskFormModal.svelte';
 
-	let { patientId, userId, onTaskSaved }: {
+	let { patientId, userId, canManageTasks, onTaskSaved }: {
 		patientId: string;
 		userId: string;
+		canManageTasks: boolean;
 		onTaskSaved: () => void;
 	} = $props();
 
@@ -86,12 +87,14 @@
 <div class="p-4 pb-6">
 	<div class="mb-5 flex items-center justify-between">
 		<div>
-			<h2 class="text-lg font-semibold">Schedule</h2>
+			<h2 class="font-display text-lg font-semibold">Schedule</h2>
 			<p class="text-muted-foreground text-xs">
 				{tasks.filter(t => !t.complete).length} tasks remaining
 			</p>
 		</div>
-		<Button size="sm" onclick={() => { editingTask = null; showForm = true; }}>+ Add task</Button>
+		{#if canManageTasks}
+			<Button size="sm" onclick={() => { editingTask = null; showForm = true; }}>+ Add task</Button>
+		{/if}
 	</div>
 
 	{#if loading}
@@ -103,7 +106,9 @@
 		<div class="flex flex-col items-center justify-center gap-3 py-16 text-center">
 			<CalendarX class="text-muted-foreground h-10 w-10 opacity-40" />
 			<p class="text-muted-foreground text-sm">No tasks scheduled yet.</p>
-			<Button variant="outline" onclick={() => (showForm = true)}>Add first task</Button>
+			{#if canManageTasks}
+				<Button variant="outline" onclick={() => (showForm = true)}>Add first task</Button>
+			{/if}
 		</div>
 	{:else}
 		<div class="space-y-7">
@@ -135,7 +140,7 @@
 									aria-label={task.complete ? 'Mark incomplete' : 'Mark complete'}
 								>
 									{#if task.complete}
-										<CheckCircle2 class="h-5 w-5 text-green-500" />
+										<CheckCircle2 class="h-5 w-5 text-success" />
 									{:else}
 										<Circle class="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />
 									{/if}
@@ -176,19 +181,21 @@
 									{/if}
 
 									{#if task.complete && task.completed_at}
-										<p class="mt-1 text-xs text-green-600">
+										<p class="mt-1 text-xs text-success">
 											✓ Completed at {formatTime(task.completed_at)}
 										</p>
 									{/if}
 								</div>
 
-								<!-- Edit button (visible on hover) -->
-								<button
-									class="shrink-0 rounded px-2 py-1 text-xs text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-600"
-									onclick={() => { editingTask = task; showForm = true; }}
-								>
-									Edit
-								</button>
+								<!-- Edit button (visible on hover, coordinators only) -->
+								{#if canManageTasks}
+									<button
+										class="shrink-0 rounded px-2 py-1 text-xs text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-600"
+										onclick={() => { editingTask = task; showForm = true; }}
+									>
+										Edit
+									</button>
+								{/if}
 							</div>
 						{/each}
 					</div>

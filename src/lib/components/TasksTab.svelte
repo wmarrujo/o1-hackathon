@@ -8,9 +8,10 @@
 	import TaskFormModal from '$lib/components/TaskFormModal.svelte';
 	import NoteInlineForm from '$lib/components/NoteInlineForm.svelte';
 
-	let { patientId, userId, refreshKey = 0 }: {
+	let { patientId, userId, canManageTasks, refreshKey = 0 }: {
 		patientId: string;
 		userId: string;
+		canManageTasks: boolean;
 		refreshKey?: number;
 	} = $props();
 
@@ -89,10 +90,12 @@
 <div class="p-4 pb-6">
 	<div class="mb-5 flex items-center justify-between">
 		<div>
-			<h2 class="text-lg font-semibold">Tasks</h2>
+			<h2 class="font-display text-lg font-semibold">Tasks</h2>
 			<p class="text-muted-foreground text-xs">{counts.incomplete} incomplete</p>
 		</div>
-		<Button size="sm" onclick={() => { editingTask = null; showForm = true; }}>+ Add task</Button>
+		{#if canManageTasks}
+			<Button size="sm" onclick={() => { editingTask = null; showForm = true; }}>+ Add task</Button>
+		{/if}
 	</div>
 
 	<!-- Filters -->
@@ -136,7 +139,7 @@
 							aria-label={task.complete ? 'Mark incomplete' : 'Mark complete'}
 						>
 							{#if task.complete}
-								<CheckCircle2 class="h-5 w-5 text-green-500" />
+								<CheckCircle2 class="h-5 w-5 text-success" />
 							{:else}
 								<Circle class="h-5 w-5 text-slate-300 group-hover:text-primary transition-colors" />
 							{/if}
@@ -167,17 +170,19 @@
 							{/if}
 
 							{#if task.complete && task.completed_at}
-								<p class="mt-1 text-xs text-green-600">✓ Completed {formatDateTime(task.completed_at)}</p>
+								<p class="mt-1 text-xs text-success">✓ Completed {formatDateTime(task.completed_at)}</p>
 							{/if}
 						</div>
 
 						<div class="flex shrink-0 flex-col items-end gap-1">
-							<button
-								class="rounded px-2 py-1 text-xs text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-600"
-								onclick={() => { editingTask = task; showForm = true; }}
-							>
-								Edit
-							</button>
+							{#if canManageTasks}
+								<button
+									class="rounded px-2 py-1 text-xs text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-600"
+									onclick={() => { editingTask = task; showForm = true; }}
+								>
+									Edit
+								</button>
+							{/if}
 							<button
 								class="flex items-center gap-1 rounded px-2 py-1 text-xs text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-600"
 								onclick={() => (noteTaskId = noteTaskId === task.id ? null : task.id)}

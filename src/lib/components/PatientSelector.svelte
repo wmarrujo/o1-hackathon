@@ -3,19 +3,31 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { Card, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import { ArrowLeft } from 'lucide-svelte';
 
-	let { patients, onSelect, userEmail }: {
+	let { patients, onSelect, userEmail, onBack = null }: {
 		patients: Patient[];
 		onSelect: (p: Patient) => void;
 		userEmail: string;
+		onBack?: (() => void) | null;
 	} = $props();
 </script>
 
-<div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
+<div class="flex min-h-screen flex-col items-center justify-center bg-background p-4">
 	<div class="w-full max-w-md">
+		{#if onBack}
+			<button
+				class="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+				onclick={onBack}
+			>
+				<ArrowLeft class="h-4 w-4" />
+				Back
+			</button>
+		{/if}
+
 		<div class="mb-6 text-center">
 			<div class="mb-2 text-4xl">🏥</div>
-			<h1 class="text-2xl font-bold">CareTrack</h1>
+			<h1 class="font-display text-2xl font-bold">CareTrack</h1>
 			<p class="text-muted-foreground mt-1 text-sm">Signed in as {userEmail}</p>
 		</div>
 
@@ -28,7 +40,7 @@
 				</div>
 			</Card>
 		{:else}
-			<h2 class="mb-3 text-lg font-semibold">Select a patient</h2>
+			<h2 class="font-display mb-3 text-lg font-semibold">Select a patient</h2>
 			<div class="space-y-3">
 				{#each patients as patient}
 					<button class="w-full text-left" onclick={() => onSelect(patient)}>

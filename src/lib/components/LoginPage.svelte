@@ -24,18 +24,18 @@
 	}
 </script>
 
-<div class="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+<div class="flex min-h-screen items-center justify-center bg-background p-4">
 	<Card class="w-full max-w-sm">
 		<CardHeader class="text-center">
 			<div class="mb-2 text-4xl">🏥</div>
-			<CardTitle class="text-2xl">CareTrack</CardTitle>
+			<CardTitle class="font-display text-2xl">CareTrack</CardTitle>
 			<CardDescription>Collaborative care coordination for patients and families</CardDescription>
 		</CardHeader>
 		<CardContent>
 			{#if sent}
-				<div class="rounded-lg bg-green-50 p-4 text-center text-sm text-green-800">
+				<div class="rounded-lg bg-success/10 p-4 text-center text-sm text-success">
 					<p class="font-medium">Check your email</p>
-					<p class="mt-1 text-green-700">We sent a magic link to <strong>{email}</strong></p>
+					<p class="mt-1 opacity-80">We sent a magic link to <strong>{email}</strong></p>
 				</div>
 				<Button variant="ghost" class="mt-4 w-full" onclick={() => { sent = false; email = ''; }}>
 					Use a different email
@@ -54,7 +54,7 @@
 						/>
 					</div>
 					{#if error}
-						<p class="text-sm text-red-600">{error}</p>
+						<p class="text-destructive text-sm">{error}</p>
 					{/if}
 					<Button type="submit" class="h-12 w-full text-base" disabled={loading || !email}>
 						{loading ? 'Sending…' : 'Send magic link'}

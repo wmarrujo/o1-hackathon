@@ -11,6 +11,7 @@
 	let patients = $state<Patient[]>([]);
 	let userRoles = $state<UserRole[]>([]);
 	let selectedPatient = $state<Patient | null>(null);
+	let previousPatient = $state<Patient | null>(null);
 	let userFullName = $state('');
 	let loading = $state(true);
 
@@ -89,14 +90,19 @@
 {:else if !session}
 	<LoginPage />
 {:else if !selectedPatient}
-	<PatientSelector {patients} onSelect={(p) => (selectedPatient = p)} userEmail={session.user.email ?? ''} />
+	<PatientSelector
+		{patients}
+		onSelect={(p) => { previousPatient = null; selectedPatient = p; }}
+		userEmail={session.user.email ?? ''}
+		onBack={previousPatient ? () => (selectedPatient = previousPatient) : null}
+	/>
 {:else}
 	<AppShell
 		patient={selectedPatient}
 		userRole={currentRole()!}
 		userId={session.user.id}
 		{userFullName}
-		onSwitchPatient={() => (selectedPatient = null)}
+		onSwitchPatient={() => { previousPatient = selectedPatient; selectedPatient = null; }}
 		onSignOut={async () => { await supabase.auth.signOut(); }}
 	/>
 {/if}
