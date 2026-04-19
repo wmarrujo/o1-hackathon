@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { redirect } from '@sveltejs/kit'
 import type { Handle } from '@sveltejs/kit'
 
-const PUBLIC_ROUTES = new Set(['/', '/login'])
+const PUBLIC_ROUTES = new Set(['/', '/login', '/signup'])
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const { pathname } = event.url

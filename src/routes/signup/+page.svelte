@@ -7,16 +7,21 @@
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import SalusLogo from '$lib/components/SalusLogo.svelte';
 
+	let name = $state('');
 	let email = $state('');
 	let password = $state('');
 	let loading = $state(false);
 	let error = $state('');
 
-	async function handleLogin() {
-		if (!email || !password) return;
+	async function handleSignUp() {
+		if (!name || !email || !password) return;
 		loading = true;
 		error = '';
-		const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+		const { error: err } = await supabase.auth.signUp({
+			email,
+			password,
+			options: { data: { full_name: name } }
+		});
 		if (err) {
 			error = err.message;
 		} else {
@@ -36,7 +41,18 @@
 			<CardDescription>Collaborative care coordination for patients and families</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="space-y-4">
+			<form onsubmit={(e) => { e.preventDefault(); handleSignUp(); }} class="space-y-4">
+				<div class="space-y-2">
+					<Label for="name">Full name</Label>
+					<Input
+						id="name"
+						type="text"
+						placeholder="Jane Smith"
+						bind:value={name}
+						disabled={loading}
+						class="h-12 text-base"
+					/>
+				</div>
 				<div class="space-y-2">
 					<Label for="email">Email address</Label>
 					<Input
@@ -62,11 +78,11 @@
 				{#if error}
 					<p class="text-destructive text-sm">{error}</p>
 				{/if}
-				<Button type="submit" class="h-12 w-full text-base" disabled={loading || !email || !password}>
-					{loading ? 'Signing in…' : 'Sign in'}
+				<Button type="submit" class="h-12 w-full text-base" disabled={loading || !name || !email || !password}>
+					{loading ? 'Creating account…' : 'Create account'}
 				</Button>
 				<p class="text-muted-foreground text-center text-sm">
-					Don't have an account? <a href="/signup" class="text-foreground underline underline-offset-4">Create one</a>
+					Already have an account? <a href="/login" class="text-foreground underline underline-offset-4">Sign in</a>
 				</p>
 			</form>
 		</CardContent>
