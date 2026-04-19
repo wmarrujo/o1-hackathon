@@ -11,6 +11,7 @@
 	let patients = $state<Patient[]>([]);
 	let userRoles = $state<UserRole[]>([]);
 	let selectedPatient = $state<Patient | null>(null);
+	let userFullName = $state('');
 	let loading = $state(true);
 
 	onMount(() => {
@@ -27,6 +28,7 @@
 				patients = [];
 				userRoles = [];
 				selectedPatient = null;
+				userFullName = '';
 				loading = false;
 			}
 		});
@@ -34,16 +36,22 @@
 
 	async function ensureProfile() {
 		const user = session!.user;
+		const fallbackName = user.email?.split('@')[0] ?? 'Unknown';
 		await supabase.from('users').upsert({
 			id: user.id,
 			email: user.email ?? '',
-			full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'Unknown'
+			full_name: user.user_metadata?.full_name ?? fallbackName
 		}, { onConflict: 'id', ignoreDuplicates: true });
+
+		// Fetch the stored full_name for display
+		const { data } = await supabase.from('users').select('full_name').eq('id', user.id).single();
+		userFullName = data?.full_name ?? fallbackName;
 	}
 
 	async function loadPatients() {
 		loading = true;
 		await ensureProfile();
+
 		const { data: roleData } = await supabase
 			.from('user_roles')
 			.select('*')
@@ -65,9 +73,7 @@
 
 		patients = patientData ?? [];
 
-		if (patients.length === 1) {
-			selectedPatient = patients[0];
-		}
+		if (patients.length === 1) selectedPatient = patients[0];
 		loading = false;
 	}
 
@@ -89,7 +95,7 @@
 		patient={selectedPatient}
 		userRole={currentRole()!}
 		userId={session.user.id}
-		userEmail={session.user.email ?? ''}
+		{userFullName}
 		onSwitchPatient={() => (selectedPatient = null)}
 		onSignOut={async () => { await supabase.auth.signOut(); }}
 	/>
