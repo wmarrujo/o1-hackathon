@@ -1,4 +1,4 @@
-# Coordinaire
+# Salus
 ### Coordinated care for the people who matter most
 
 ---
@@ -184,7 +184,7 @@ At a glance: is everything okay?
 
 ## vs. The Competition
 
-| | Caring Village | ianacare | **CareSync** |
+| | Caring Village | ianacare | **Salus** |
 |---|---|---|---|
 | Task list | ✓ | ✓ | ✓ |
 | Scheduling | ✓ | ✓ | ✓ |
@@ -252,7 +252,7 @@ Language, culture, and training gaps — **closed.**
 
 <!-- .slide: data-transition="zoom" data-background="#1a0f2e" -->
 
-# CareSync
+# Salus
 
 **Stop information loss.**  
 **Reduce caregiver burden.**  
