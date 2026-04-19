@@ -26,6 +26,12 @@
 	let pendingQuestion = $state('');
 	let followUpAnswer = $state('');
 
+	// Follow-up dictation state
+	let isRecordingFollowUp = $state(false);
+	let isTranscribingFollowUp = $state(false);
+	let followUpMediaRecorder: MediaRecorder | null = null;
+	let followUpAudioChunks: Blob[] = [];
+
 	let mediaRecorder: MediaRecorder | null = null;
 	let audioChunks: Blob[] = [];
 
@@ -115,6 +121,43 @@
 		}
 	}
 
+	async function startFollowUpRecording() {
+		followUpAudioChunks = [];
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		followUpMediaRecorder = new MediaRecorder(stream);
+		followUpMediaRecorder.ondataavailable = (e) => {
+			if (e.data.size > 0) followUpAudioChunks.push(e.data);
+		};
+		followUpMediaRecorder.onstop = async () => {
+			stream.getTracks().forEach((t) => t.stop());
+			const blob = new Blob(followUpAudioChunks, { type: 'audio/webm' });
+			isTranscribingFollowUp = true;
+			try {
+				const formData = new FormData();
+				formData.append('audio', blob, 'recording.webm');
+				const res = await fetch('/speech-to-text/api', {
+					method: 'POST',
+					headers: { Authorization: await authHeader() },
+					body: formData,
+				});
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error ?? 'Transcription failed');
+				followUpAnswer = data.text;
+			} catch (e: any) {
+				error = e.message;
+			} finally {
+				isTranscribingFollowUp = false;
+			}
+		};
+		followUpMediaRecorder.start();
+		isRecordingFollowUp = true;
+	}
+
+	function stopFollowUpRecording() {
+		followUpMediaRecorder?.stop();
+		isRecordingFollowUp = false;
+	}
+
 	async function submitFollowUp() {
 		if (!followUpAnswer.trim()) return;
 		const updatedMessages: Message[] = [
@@ -168,7 +211,13 @@
 	{#if transcript}
 		<Card class="mb-4">
 			<CardContent class="pt-4">
-				<p class="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Your check-out</p>
+				<div class="mb-2 flex items-center justify-between">
+					<p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Your check-out</p>
+					<Button variant="ghost" size="sm" onclick={reset} class="gap-1 text-xs h-7">
+						<Mic class="h-3 w-3" />
+						Re-record
+					</Button>
+				</div>
 				<p class="text-sm leading-relaxed">{transcript}</p>
 			</CardContent>
 		</Card>
@@ -191,9 +240,34 @@
 					<p class="text-xs font-semibold uppercase tracking-wide text-primary">Follow-up question</p>
 				</div>
 				<p class="mb-4 text-sm leading-relaxed">{pendingQuestion}</p>
+				<div class="mb-2 flex items-center gap-2">
+					{#if !isRecordingFollowUp}
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={startFollowUpRecording}
+							disabled={isTranscribingFollowUp || isSubmitting}
+							class="gap-1 shrink-0"
+						>
+							{#if isTranscribingFollowUp}
+								<Loader2 class="h-3 w-3 animate-spin" />
+								Transcribing...
+							{:else}
+								<Mic class="h-3 w-3" />
+								Record answer
+							{/if}
+						</Button>
+					{:else}
+						<Button variant="destructive" size="sm" onclick={stopFollowUpRecording} class="gap-1 shrink-0">
+							<Square class="h-3 w-3" />
+							Stop
+						</Button>
+						<span class="text-xs font-medium text-destructive">Recording...</span>
+					{/if}
+				</div>
 				<Textarea
 					bind:value={followUpAnswer}
-					placeholder="Type your answer..."
+					placeholder="Type your answer or use the mic above..."
 					class="mb-3 resize-none"
 					rows={3}
 					onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitFollowUp(); } }}
@@ -211,13 +285,4 @@
 		</Card>
 	{/if}
 
-	<!-- Start over -->
-	{#if transcript && !isSubmitting}
-		<button
-			onclick={reset}
-			class="text-xs text-muted-foreground underline-offset-2 hover:underline"
-		>
-			Start over
-		</button>
-	{/if}
 </div>

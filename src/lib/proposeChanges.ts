@@ -9,6 +9,7 @@ export interface LLMPayload {
     complete: boolean
   }[]
   notes: {
+    patient_id: string
     content: string
     task_id?: string | null
   }[]
@@ -73,6 +74,7 @@ export function validateProposeChanges(body: unknown): ProposeChangesResult {
       complete: e.complete as boolean,
     })),
     notes: (raw.notes as Record<string, unknown>[]).map((n) => ({
+      patient_id: raw.patient_id as string,
       content: (n.content as string).trim(),
       ...('task_id' in n && { task_id: (n as Record<string, unknown>).task_id as string | null }),
     })),
