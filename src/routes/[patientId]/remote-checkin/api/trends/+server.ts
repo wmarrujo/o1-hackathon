@@ -1,30 +1,29 @@
 /**
- * GET /{patientId}/remote-checkin/api/ai
+ * GET /{patientId}/remote-checkin/api/trends
  *
- * Slow part of the remote check-in: gathers recent notes, check-ins,
- * conditions, and task outcomes, then asks the DigitalOcean agent for a
- * semantic summary + forward-looking concerns. Runs in parallel with the
- * fast /tasks endpoint.
+ * Slow AI call that looks at the last 7 days of notes, check-ins, task
+ * outcomes, and scheduled events and returns a markdown-formatted trends
+ * summary plus forward-looking concerns.
  *
- * Response 200: { summary: string, future_issues: string }
+ * Response 200: { trends: string, future_issues: string }
  */
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { createClient } from '@supabase/supabase-js'
 import {
-  DIGITALOCEAN_REMOTE_CHECKIN_ACCESS_KEY,
-  DIGITALOCEAN_REMOTE_CHECKIN_ENDPOINT,
+  DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ACCESS_KEY,
+  DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ENDPOINT,
 } from '$env/static/private'
 
-const WINDOW_HOURS = 48
-const NOTE_LIMIT = 30
-const CHECK_IN_LIMIT = 10
+const WINDOW_DAYS = 7
+const NOTE_LIMIT = 100
+const CHECK_IN_LIMIT = 40
 
 export const GET: RequestHandler = async ({ params, request }) => {
   try {
     return await handle(params.patientId!, request)
   } catch (e: any) {
-    console.error('[remote-checkin/ai] unhandled error:', e)
+    console.error('[remote-checkin/trends] unhandled error:', e)
     return json({ error: e?.message ?? 'Unknown error' }, { status: 500 })
   }
 }
@@ -37,46 +36,54 @@ async function handle(patientId: string, request: Request) {
     { global: { headers: { Authorization: `Bearer ${token}` } } }
   )
 
-  const windowStart = new Date(Date.now() - WINDOW_HOURS * 3600 * 1000).toISOString()
-  const nowIso = new Date().toISOString()
+  const windowStart = new Date(Date.now() - WINDOW_DAYS * 24 * 3600 * 1000).toISOString()
 
   const [
     { data: completedRaw },
     { data: missedRaw },
     { data: notesRaw },
     { data: checkInsRaw },
+    { data: eventsRaw },
     { data: conditionsRaw },
     { data: usersRaw },
   ] = await Promise.all([
     supabase
       .from('tasks')
-      .select('id, description, completed_at, completed_by, assignee_id')
+      .select('description, completed_at, completed_by, assignee_id')
       .eq('patient_id', patientId)
       .eq('complete', true)
       .gte('completed_at', windowStart)
       .order('completed_at', { ascending: false }),
     supabase
       .from('tasks')
-      .select('id, description, due_time, assignee_id')
+      .select('description, due_time, assignee_id')
       .eq('patient_id', patientId)
       .eq('complete', false)
       .not('due_time', 'is', null)
-      .lt('due_time', nowIso)
+      .gte('due_time', windowStart)
+      .lt('due_time', new Date().toISOString())
       .order('due_time', { ascending: true }),
     supabase
       .from('notes')
-      .select('id, content, author_id, created_at')
+      .select('content, author_id, created_at')
       .eq('patient_id', patientId)
       .gte('created_at', windowStart)
       .order('created_at', { ascending: false })
       .limit(NOTE_LIMIT),
     supabase
       .from('check_ins')
-      .select('id, check_in_type, health_status_note, ai_summary, created_at, user_id')
+      .select('check_in_type, health_status_note, ai_summary, created_at, user_id')
       .eq('patient_id', patientId)
       .gte('created_at', windowStart)
       .order('created_at', { ascending: false })
       .limit(CHECK_IN_LIMIT),
+    supabase
+      .from('schedule_events')
+      .select('title, event_type, dtstart, dtend, status, assigned_user_id')
+      .eq('patient_id', patientId)
+      .gte('dtstart', windowStart)
+      .neq('status', 'CANCELLED')
+      .order('dtstart', { ascending: false }),
     supabase
       .from('health_conditions')
       .select('name, description, ai_summary')
@@ -110,18 +117,24 @@ async function handle(patientId: string, request: Request) {
       ai_summary: c.ai_summary,
       created_at: c.created_at,
     })),
+    events: (eventsRaw ?? []).map((e) => ({
+      title: e.title,
+      event_type: e.event_type,
+      dtstart: e.dtstart,
+      dtend: e.dtend,
+      assignee_name: e.assigned_user_id ? userName.get(e.assigned_user_id) ?? null : null,
+    })),
     conditions: (conditionsRaw ?? []).map((c) => ({
       name: c.name,
       description: c.description,
       ai_summary: c.ai_summary,
     })),
-    windowHours: WINDOW_HOURS,
+    windowDays: WINDOW_DAYS,
   })
 
-  console.log('[remote-checkin/ai] agent input:\n', agentInput)
+  console.log('[remote-checkin/trends] agent input:\n', agentInput)
 
   const ai = await callAgent(agentInput)
-
   return json(ai)
 }
 
@@ -130,11 +143,12 @@ function buildAgentInput(ctx: {
   missed: { description: string; due_time: string | null; assignee_name: string | null }[]
   notes: { content: string; author: string; created_at: string }[]
   checkIns: { type: string; user: string; note: string | null; ai_summary: string | null; created_at: string }[]
+  events: { title: string; event_type: string; dtstart: string; dtend: string; assignee_name: string | null }[]
   conditions: { name: string; description: string | null; ai_summary: string | null }[]
-  windowHours: number
+  windowDays: number
 }): string {
   const parts: string[] = []
-  parts.push(`Remote check-in context (last ${ctx.windowHours} hours):`)
+  parts.push(`Remote check-in — longer-term trends (last ${ctx.windowDays} days):`)
 
   if (ctx.conditions.length > 0) {
     parts.push('\nKnown health conditions:')
@@ -145,22 +159,22 @@ function buildAgentInput(ctx: {
   }
 
   if (ctx.notes.length > 0) {
-    parts.push('\nRecent caregiver notes (most recent first):')
+    parts.push('\nCaregiver notes (most recent first):')
     for (const n of ctx.notes) {
       parts.push(`- [${n.created_at} · ${n.author}] ${n.content}`)
     }
   } else {
-    parts.push('\nRecent caregiver notes: none')
+    parts.push('\nCaregiver notes: none')
   }
 
   if (ctx.checkIns.length > 0) {
-    parts.push('\nRecent shift check-ins:')
+    parts.push('\nShift check-ins:')
     for (const c of ctx.checkIns) {
       const body = [c.note, c.ai_summary].filter(Boolean).join(' | ')
       parts.push(`- [${c.created_at} · ${c.user} · ${c.type}] ${body || '(no notes)'}`)
     }
   } else {
-    parts.push('\nRecent shift check-ins: none')
+    parts.push('\nShift check-ins: none')
   }
 
   parts.push(`\nTasks completed in window (${ctx.completed.length}):`)
@@ -168,37 +182,43 @@ function buildAgentInput(ctx: {
     parts.push(`- "${t.description}" by ${t.completed_by_name ?? 'unknown'} at ${t.completed_at}`)
   }
 
-  parts.push(`\nTasks missed / overdue (${ctx.missed.length}):`)
+  parts.push(`\nTasks missed / overdue in window (${ctx.missed.length}):`)
   for (const t of ctx.missed) {
     parts.push(`- "${t.description}" due ${t.due_time}, assigned to ${t.assignee_name ?? 'unassigned'}`)
+  }
+
+  parts.push(`\nScheduled events in window (${ctx.events.length}):`)
+  for (const e of ctx.events) {
+    parts.push(`- [${e.event_type}] ${e.title} ${e.dtstart}–${e.dtend}, ${e.assignee_name ?? 'unassigned'}`)
   }
 
   return parts.join('\n')
 }
 
-async function callAgent(content: string): Promise<{ summary: string; future_issues: string }> {
-  const res = await fetch(`${DIGITALOCEAN_REMOTE_CHECKIN_ENDPOINT}/api/v1/chat/completions`, {
+async function callAgent(content: string): Promise<{ trends: string; future_issues: string }> {
+  if (!DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ENDPOINT || !DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ACCESS_KEY) {
+    throw new Error('DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ENDPOINT/ACCESS_KEY not set. Restart the dev server after editing .env.')
+  }
+  const res = await fetch(`${DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ENDPOINT}/api/v1/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${DIGITALOCEAN_REMOTE_CHECKIN_ACCESS_KEY}`,
+      Authorization: `Bearer ${DIGITALOCEAN_REMOTE_CHECKIN_TRENDS_ACCESS_KEY}`,
     },
     body: JSON.stringify({ messages: [{ role: 'user', content }] }),
   })
 
   if (!res.ok) {
     const detail = await res.text()
-    console.error('[remote-checkin/ai] agent error:', res.status, detail)
+    console.error('[remote-checkin/trends] agent error:', res.status, detail)
     throw new Error(`Agent returned ${res.status}: ${detail.slice(0, 200)}`)
   }
 
   const data = await res.json()
   const replyText: string = data?.choices?.[0]?.message?.content ?? ''
-
-  console.log('[remote-checkin/ai] agent raw reply:', replyText)
+  console.log('[remote-checkin/trends] agent raw reply:', replyText)
 
   const cleaned = stripCodeFences(replyText)
-
   let parsed: unknown
   try {
     parsed = JSON.parse(cleaned)
@@ -208,7 +228,7 @@ async function callAgent(content: string): Promise<{ summary: string; future_iss
 
   const p = parsed as Record<string, unknown>
   return {
-    summary: typeof p.summary === 'string' ? p.summary : '',
+    trends: typeof p.trends === 'string' ? p.trends : '',
     future_issues: typeof p.future_issues === 'string' ? p.future_issues : '',
   }
 }
