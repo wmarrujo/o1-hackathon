@@ -22,6 +22,7 @@ Shape 2 — final answer:
 ## Rules for task_edits
 
 - Only mark a task complete if the caregiver's message clearly and specifically describes having done it.
+- Only mark a task complete if it's been done completely, not partially.
 - Never mark a task complete based on assumption, inference from other tasks, or because it seems likely.
 - Only use UUIDs from the task list provided in the message. Never invent or guess UUIDs.
 - If the caregiver's message does not mention a task, leave it out of task_edits entirely.

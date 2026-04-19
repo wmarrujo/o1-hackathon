@@ -110,7 +110,7 @@
 				{#if !isCoordinator}
 					<TabsContent value="checkout" class="absolute inset-0 m-0 overflow-y-auto p-0">
 						<div class="mx-auto max-w-3xl">
-							<CheckoutTab patientId={patient.id} />
+							<CheckoutTab patientId={patient.id} onDone={() => (activeTab = 'tasks')} />
 						</div>
 					</TabsContent>
 				{/if}

@@ -83,14 +83,36 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const taskContext = formatTaskContext(tasks ?? [])
 
-  // Inject task context into the first user message so the agent has it on every turn.
-  // Subsequent messages (questions/answers) are forwarded as-is to preserve conversation history.
-  const agentMessages: Message[] = (messages as Message[]).map((msg, i) => {
-    if (i === 0 && msg.role === 'user') {
-      return { role: 'user', content: `${taskContext}\n\nCaregiver check-out message:\n${msg.content}` }
-    }
-    return msg
-  })
+  // Build agent messages with full context.
+  // The DO agent is stateless per-call, so we cannot rely on it attending to earlier messages in
+  // the history. For a follow-up turn we collapse everything into a single user message so the
+  // agent always sees: task list + original transcript + clarification question + answer.
+  const msgs = messages as Message[]
+  let agentMessages: Message[]
+
+  if (msgs.length === 1) {
+    agentMessages = [
+      { role: 'user', content: `${taskContext}\n\nCaregiver check-out message:\n${msgs[0].content}` },
+    ]
+  } else {
+    const originalTranscript = msgs[0].content
+    const assistantMsgs = msgs.filter((m) => m.role === 'assistant')
+    const lastQuestion = assistantMsgs[assistantMsgs.length - 1]?.content ?? ''
+    const lastAnswer = msgs[msgs.length - 1].content
+    agentMessages = [
+      {
+        role: 'user',
+        content: [
+          taskContext,
+          `\nCaregiver check-out message:\n${originalTranscript}`,
+          lastQuestion ? `\nClarification question you asked:\n${lastQuestion}` : '',
+          `\nCaregiver's answer to your question:\n${lastAnswer}`,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      },
+    ]
+  }
 
   console.log('[checkout/api] sending to agent, turns:', agentMessages.length)
   console.log('[checkout/api] task context:', taskContext)
