@@ -1,9 +1,9 @@
-# CareSync
+# Coordinaire
 ### Coordinated care for the people who matter most
 
 ---
 
-<!-- .slide: data-background="#1a1a2e" -->
+<!-- .slide: data-background="#1a0f2e" -->
 
 ## The Problem
 
@@ -15,7 +15,7 @@ When a loved one can no longer care for themselves —
 
 ---
 
-<!-- .slide: data-background="#0d3349" -->
+<!-- .slide: data-background="#0c1e38" -->
 
 ## Sound familiar?
 
@@ -26,13 +26,13 @@ When a loved one can no longer care for themselves —
 
 ---
 
-<!-- .slide: data-background="#16213e" -->
+<!-- .slide: data-background="#131c34" -->
 
 ## The Gap We Fill
 
 <div style="display:flex; gap:3rem; justify-content:center; align-items:flex-start; margin-top:1.5rem; font-size:0.85em">
 
-<div style="flex:1; background:#e9456022; border-radius:12px; padding:1.2rem">
+<div style="flex:1; background:#f4726830; border-radius:12px; padding:1.2rem">
 
 **Caregivers**  
 Visit the home, perform tasks —  
@@ -44,7 +44,7 @@ don't always know what's needed
 
 <div style="font-size:2rem; padding-top:2rem">⟷</div> <!-- .element: class="fragment" -->
 
-<div style="flex:1; background:#0f346022; border-radius:12px; padding:1.2rem">
+<div style="flex:1; background:#7dd3fc28; border-radius:12px; padding:1.2rem">
 
 **Coordinators**  
 Organize care, track records —  
@@ -61,7 +61,7 @@ duplicate effort, and burn out
 
 ----
 
-<!-- .slide: data-background="#1e3a1e" -->
+<!-- .slide: data-background="#0f2218" -->
 
 ### Dianne's Story
 
@@ -73,7 +73,7 @@ no single source of truth.
 
 ----
 
-<!-- .slide: data-background="#1e1e3a" -->
+<!-- .slide: data-background="#16103a" -->
 
 ### Melissa's Story
 
@@ -85,7 +85,7 @@ Family as the main coordinator, plus aides who
 
 ---
 
-<!-- .slide: data-auto-animate data-background="#0d0d0d" -->
+<!-- .slide: data-auto-animate data-background="#0b0b14" -->
 
 ## Who We Serve
 
@@ -97,7 +97,7 @@ Family as the main coordinator, plus aides who
 
 ---
 
-<!-- .slide: data-auto-animate data-background="#0d0d0d" -->
+<!-- .slide: data-auto-animate data-background="#0b0b14" -->
 
 ## Who We Serve
 
@@ -113,7 +113,7 @@ Family as the main coordinator, plus aides who
 
 ---
 
-<!-- .slide: data-auto-animate data-background="#0d0d0d" -->
+<!-- .slide: data-auto-animate data-background="#0b0b14" -->
 
 ## Who We Serve
 
@@ -131,7 +131,7 @@ Millions more are poorer families who **can't afford** professional coordination
 
 ---
 
-<!-- .slide: data-background="#1a1a2e" -->
+<!-- .slide: data-background="#1a0f2e" -->
 
 ## What We Built
 
@@ -180,7 +180,7 @@ At a glance: is everything okay?
 
 ---
 
-<!-- .slide: data-background="#0a3d0a" -->
+<!-- .slide: data-background="#0a2818" -->
 
 ## vs. The Competition
 
@@ -195,7 +195,7 @@ At a glance: is everything okay?
 
 ---
 
-<!-- .slide: data-background="#16213e" -->
+<!-- .slide: data-background="#0e1a30" -->
 
 ## Tech Stack
 
@@ -227,7 +227,7 @@ AI: Claude API · Agentic safety: hallucination guards, prompt injection prevent
 
 ---
 
-<!-- .slide: data-background="#1a0a0a" -->
+<!-- .slide: data-background="#1e1020" -->
 
 ## Business Model
 
@@ -238,7 +238,7 @@ AI: Claude API · Agentic safety: hallucination guards, prompt injection prevent
 
 ---
 
-<!-- .slide: data-transition="zoom" data-background="#0a3d0a" -->
+<!-- .slide: data-transition="zoom" data-background="#0a2818" -->
 
 ## Our Priority: Accessibility
 
@@ -250,7 +250,7 @@ Language, culture, and training gaps — **closed.**
 
 ---
 
-<!-- .slide: data-transition="zoom" data-background="#1a1a2e" -->
+<!-- .slide: data-transition="zoom" data-background="#1a0f2e" -->
 
 # CareSync
 
