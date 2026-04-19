@@ -200,7 +200,8 @@
 								</button>
 							{/if}
 							<button
-								class="flex items-center gap-1 rounded px-2 py-1 text-xs text-slate-300 opacity-0 transition-all group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-600"
+								class="flex items-center gap-1 rounded px-2 py-1 text-xs transition-all hover:bg-slate-100 hover:text-slate-600
+									{canManageTasks ? 'text-slate-300 opacity-0 group-hover:opacity-100' : 'text-slate-400'}"
 								onclick={() => (noteTaskId = noteTaskId === task.id ? null : task.id)}
 							>
 								<StickyNote class="h-3 w-3" />

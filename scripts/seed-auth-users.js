@@ -385,7 +385,7 @@ const { error: noteErr } = await supabase.from('notes').upsert([
 		task_id: '00000000-0000-0000-0003-000000000005',
 		author_id: PEGGY,
 		content: "Printed the BP log from the spreadsheet Dianne shared. 30 days, formatted and ready. Left it in the folder on the kitchen counter.",
-		created_at: '2026-04-19T14:00:00+00:00'
+		created_at: '2026-04-18T14:00:00+00:00'
 	},
 	{
 		id: '00000000-0000-0000-0005-000000000010',
@@ -393,7 +393,7 @@ const { error: noteErr } = await supabase.from('notes').upsert([
 		task_id: null,
 		author_id: DIANNE,
 		content: 'Spoke with Joyce\'s daughter Dianne this afternoon. She\'s planning to attend the Dr. Smith appointment on the 22nd. Please make sure Joyce is dressed and ready by 1:30pm.',
-		created_at: '2026-04-19T11:00:00+00:00'
+		created_at: '2026-04-18T11:00:00+00:00'
 	},
 ], { onConflict: 'id' });
 if (noteErr) { console.error('notes:', noteErr.message); process.exit(1); }
