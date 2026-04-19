@@ -8,7 +8,6 @@
 	import AppShell from '$lib/components/AppShell.svelte';
 
 	let session = $state<AuthSession | null>(null);
-	let devUserId = $state<string | null>(null);
 	let patients = $state<Patient[]>([]);
 	let userRoles = $state<UserRole[]>([]);
 	let selectedPatient = $state<Patient | null>(null);
@@ -16,25 +15,16 @@
 	let userFullName = $state('');
 	let loading = $state(true);
 
-	// The active user ID — from dev picker or real session
-	let userId = $derived(import.meta.env.DEV ? devUserId : session?.user.id ?? null);
-	let isLoggedIn = $derived(!!userId);
-
 	onMount(() => {
-		if (import.meta.env.DEV) {
-			loading = false;
-			return;
-		}
-
 		supabase.auth.getSession().then(({ data }) => {
 			session = data.session;
-			if (session) loadPatients(session.user.id);
+			if (session) loadPatients();
 			else loading = false;
 		});
 
 		supabase.auth.onAuthStateChange((_event, _session) => {
 			session = _session;
-			if (_session) loadPatients(_session.user.id);
+			if (_session) loadPatients();
 			else {
 				patients = [];
 				userRoles = [];
@@ -45,31 +35,27 @@
 		});
 	});
 
-	async function handleDevLogin(id: string) {
-		devUserId = id;
-		await loadPatients(id);
-	}
-
-	async function ensureProfile(uid: string) {
-		const fallbackName = uid.slice(0, 8);
+	async function ensureProfile() {
+		const user = session!.user;
+		const fallbackName = user.email?.split('@')[0] ?? 'Unknown';
 		await supabase.from('users').upsert({
-			id: uid,
-			email: session?.user.email ?? '',
-			full_name: session?.user.user_metadata?.full_name ?? fallbackName
+			id: user.id,
+			email: user.email ?? '',
+			full_name: user.user_metadata?.full_name ?? fallbackName
 		}, { onConflict: 'id', ignoreDuplicates: true });
 
-		const { data } = await supabase.from('users').select('full_name').eq('id', uid).single();
+		const { data } = await supabase.from('users').select('full_name').eq('id', user.id).single();
 		userFullName = data?.full_name ?? fallbackName;
 	}
 
-	async function loadPatients(uid: string) {
+	async function loadPatients() {
 		loading = true;
-		await ensureProfile(uid);
+		await ensureProfile();
 
 		const { data: roleData } = await supabase
 			.from('user_roles')
 			.select('*')
-			.eq('user_id', uid);
+			.eq('user_id', session!.user.id);
 
 		userRoles = roleData ?? [];
 
@@ -93,40 +79,28 @@
 	function currentRole(): UserRole | undefined {
 		return userRoles.find((r) => r.patient_id === selectedPatient?.id);
 	}
-
-	async function handleSignOut() {
-		if (import.meta.env.DEV) {
-			devUserId = null;
-			patients = [];
-			userRoles = [];
-			selectedPatient = null;
-			userFullName = '';
-		} else {
-			await supabase.auth.signOut();
-		}
-	}
 </script>
 
 {#if loading}
 	<div class="flex h-screen items-center justify-center">
 		<div class="text-muted-foreground text-sm">Loading...</div>
 	</div>
-{:else if !isLoggedIn}
-	<LoginPage onDevLogin={handleDevLogin} />
+{:else if !session}
+	<LoginPage />
 {:else if !selectedPatient}
 	<PatientSelector
 		{patients}
 		onSelect={(p) => { previousPatient = null; selectedPatient = p; }}
-		userEmail={session?.user.email ?? ''}
+		userEmail={session.user.email ?? ''}
 		onBack={previousPatient ? () => (selectedPatient = previousPatient) : null}
 	/>
 {:else}
 	<AppShell
 		patient={selectedPatient}
 		userRole={currentRole()!}
-		userId={userId!}
+		userId={session.user.id}
 		{userFullName}
 		onSwitchPatient={() => { previousPatient = selectedPatient; selectedPatient = null; }}
-		onSignOut={handleSignOut}
+		onSignOut={async () => { await supabase.auth.signOut(); }}
 	/>
 {/if}
