@@ -11,6 +11,7 @@
 	let showMembers = $state(false);
 
 	let isCoordinator = $derived(data.userRole.role === 'coordinator');
+	let isCaregiver = $derived(data.userRole.role === 'caregiver');
 
 	const roleLabel: Record<string, string> = {
 		coordinator: 'Coordinator',
@@ -92,43 +93,53 @@
 	<nav class="shrink-0 border-t bg-card">
 		<div class="mx-auto max-w-3xl">
 			<div class="flex h-16 w-full px-2">
-				{#if isCoordinator}
+				{#if isCaregiver}
+					<!-- Simplified caregiver nav -->
 					<a
 						href="/{data.patient.id}"
 						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isBaseActive() ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
 					>
-						<Stethoscope class="h-5 w-5" />
-						Check-in
+						<ListChecks class="h-5 w-5" />
+						Home
 					</a>
-				{/if}
-				<a
-					href="/{data.patient.id}/tasks"
-					class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('tasks') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
-				>
-					<ListChecks class="h-5 w-5" />
-					Tasks
-				</a>
-				<a
-					href="/{data.patient.id}/schedule"
-					class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('schedule') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
-				>
-					<CalendarDays class="h-5 w-5" />
-					Schedule
-				</a>
-				<a
-					href="/{data.patient.id}/notes"
-					class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('notes') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
-				>
-					<FileText class="h-5 w-5" />
-					Notes
-				</a>
-				{#if !isCoordinator}
 					<a
 						href="/{data.patient.id}/checkout"
 						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('checkout') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
 					>
 						<ClipboardCheck class="h-5 w-5" />
 						Check-out
+					</a>
+				{:else}
+					<!-- Full coordinator nav -->
+					{#if isCoordinator}
+						<a
+							href="/{data.patient.id}"
+							class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isBaseActive() ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+						>
+							<Stethoscope class="h-5 w-5" />
+							Check-in
+						</a>
+					{/if}
+					<a
+						href="/{data.patient.id}/tasks"
+						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('tasks') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<ListChecks class="h-5 w-5" />
+						Tasks
+					</a>
+					<a
+						href="/{data.patient.id}/schedule"
+						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('schedule') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<CalendarDays class="h-5 w-5" />
+						Schedule
+					</a>
+					<a
+						href="/{data.patient.id}/notes"
+						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('notes') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<FileText class="h-5 w-5" />
+						Notes
 					</a>
 				{/if}
 			</div>

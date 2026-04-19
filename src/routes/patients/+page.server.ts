@@ -33,8 +33,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const patients = patientData ?? []
 
 	if (patients.length === 1) {
-		redirect(303, `/${patients[0].id}/tasks`)
+		const role = userRoles[0]?.role
+		const dest = role === 'caregiver' ? `/${patients[0].id}` : `/${patients[0].id}/tasks`
+		redirect(303, dest)
 	}
 
-	return { patients, userEmail: user.email ?? '' }
+	return { patients, userEmail: user.email ?? '', userRoles }
 }

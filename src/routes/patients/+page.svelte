@@ -28,7 +28,8 @@
 			<h2 class="font-display mb-3 text-lg font-semibold">Select a patient</h2>
 			<div class="space-y-3">
 				{#each data.patients as patient (patient.id)}
-					<button class="w-full text-left" onclick={() => goto(`/${patient.id}/tasks`)}>
+					{@const role = data.userRoles?.find(r => r.patient_id === patient.id)?.role}
+					<button class="w-full text-left" onclick={() => goto(role === 'caregiver' ? `/${patient.id}` : `/${patient.id}/tasks`)}>
 						<Card class="cursor-pointer transition-shadow hover:shadow-md active:scale-[0.99]">
 							<CardHeader class="pb-2">
 								<CardTitle class="text-lg">{patient.full_name}</CardTitle>
