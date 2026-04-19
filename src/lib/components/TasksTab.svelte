@@ -1,23 +1,25 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
-	import type { Task } from '$lib/types';
+	import type { Task, UserProfile } from '$lib/types';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { CheckCircle2, Circle, MapPin, RefreshCw, StickyNote, ClipboardList } from 'lucide-svelte';
 	import TaskFormModal from '$lib/components/TaskFormModal.svelte';
 	import NoteInlineForm from '$lib/components/NoteInlineForm.svelte';
 
-	let { patientId, userId, canManageTasks, refreshKey = 0 }: {
+	let { patientId, userId, canManageTasks, refreshKey = 0, onNoteAdded }: {
 		patientId: string;
 		userId: string;
 		canManageTasks: boolean;
 		refreshKey?: number;
+		onNoteAdded?: () => void;
 	} = $props();
 
 	type Filter = 'all' | 'incomplete' | 'mine' | 'overdue';
 
 	let tasks = $state<Task[]>([]);
+	let members = $state<UserProfile[]>([]);
 	let loading = $state(true);
 	let filter = $state<Filter>('incomplete');
 	let showForm = $state(false);
@@ -34,12 +36,19 @@
 
 	async function loadTasks() {
 		loading = true;
-		const { data } = await supabase
-			.from('tasks')
-			.select('*')
-			.eq('patient_id', patientId)
-			.order('due_time', { ascending: true, nullsFirst: false });
-		tasks = data ?? [];
+		const [tasksResult, membersResult] = await Promise.all([
+			supabase
+				.from('tasks')
+				.select('*')
+				.eq('patient_id', patientId)
+				.order('due_time', { ascending: true, nullsFirst: false }),
+			supabase
+				.from('user_roles')
+				.select('users(id, full_name, email)')
+				.eq('patient_id', patientId),
+		]);
+		tasks = tasksResult.data ?? [];
+		members = (membersResult.data ?? []).map((r: any) => r.users).filter(Boolean);
 		loading = false;
 	}
 
@@ -82,7 +91,7 @@
 	let filterOptions = $derived<[Filter, string, number][]>([
 		['incomplete', 'Incomplete', counts.incomplete],
 		['all', 'All', counts.all],
-		['mine', 'Mine', counts.mine],
+		['mine', 'Owned', counts.mine],
 		['overdue', 'Overdue', counts.overdue],
 	]);
 </script>
@@ -163,6 +172,12 @@
 								{#if task.repeat}
 									<span class="flex items-center gap-1"><RefreshCw class="h-3 w-3" />{task.repeat}</span>
 								{/if}
+								{#if task.assignee_id}
+									{@const assignee = members.find(m => m.id === task.assignee_id)}
+									{#if assignee}
+										<span class="text-slate-400">→ {assignee.full_name}</span>
+									{/if}
+								{/if}
 							</div>
 
 							{#if isOverdue(task)}
@@ -170,7 +185,8 @@
 							{/if}
 
 							{#if task.complete && task.completed_at}
-								<p class="mt-1 text-xs text-success">✓ Completed {formatDateTime(task.completed_at)}</p>
+								{@const completer = members.find(m => m.id === task.completed_by)}
+								<p class="mt-1 text-xs text-success">✓ Completed {formatDateTime(task.completed_at)}{completer ? ` by ${completer.full_name}` : ''}</p>
 							{/if}
 						</div>
 
@@ -199,7 +215,7 @@
 								{patientId}
 								taskId={task.id}
 								{userId}
-								onSaved={() => (noteTaskId = null)}
+								onSaved={() => { noteTaskId = null; onNoteAdded?.(); }}
 							/>
 						</div>
 					{/if}
@@ -213,6 +229,7 @@
 	<TaskFormModal
 		{patientId}
 		{userId}
+		{members}
 		task={editingTask}
 		onClose={() => (showForm = false)}
 		onSaved={loadTasks}

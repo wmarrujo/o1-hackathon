@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
-	import type { Task } from '$lib/types';
+	import type { Task, UserProfile } from '$lib/types';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -8,9 +8,10 @@
 	import { X } from 'lucide-svelte';
 	import { untrack } from 'svelte';
 
-	let { patientId, userId, task: initialTask, onClose, onSaved }: {
+	let { patientId, userId, members = [], task: initialTask, onClose, onSaved }: {
 		patientId: string;
 		userId: string;
+		members?: UserProfile[];
 		task: Task | null;
 		onClose: () => void;
 		onSaved: () => void;
@@ -26,6 +27,7 @@
 	let repeat: 'daily' | 'weekly' | 'monthly' | '' = $state(
 		(t?.repeat ?? '') as 'daily' | 'weekly' | 'monthly' | ''
 	);
+	let assigneeId = $state(t?.assignee_id ?? '');
 	let saving = $state(false);
 	let deleting = $state(false);
 	let error = $state('');
@@ -48,6 +50,7 @@
 			due_time: dueTime ? new Date(dueTime).toISOString() : null,
 			location: location.trim() || null,
 			repeat: repeat || null,
+			assignee_id: assigneeId || null,
 		};
 
 		let err;
@@ -126,6 +129,22 @@
 					<option value="monthly">Monthly</option>
 				</select>
 			</div>
+
+			{#if members.length > 0}
+				<div class="space-y-1.5">
+					<Label for="assignee">Assign to</Label>
+					<select
+						id="assignee"
+						bind:value={assigneeId}
+						class="border-input bg-background h-10 w-full rounded-md border px-3 text-sm"
+					>
+						<option value="">Unassigned</option>
+						{#each members as member}
+							<option value={member.id}>{member.full_name}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
 
 			{#if error}
 				<p class="text-sm text-red-600">{error}</p>

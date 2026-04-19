@@ -6,7 +6,7 @@
 	import { Trash2, Link, NotebookPen } from 'lucide-svelte';
 	import NoteInlineForm from '$lib/components/NoteInlineForm.svelte';
 
-	let { patientId, userId }: { patientId: string; userId: string } = $props();
+	let { patientId, userId, refreshKey = 0 }: { patientId: string; userId: string; refreshKey?: number } = $props();
 
 	let notes = $state<Note[]>([]);
 	let tasks = $state<Pick<Task, 'id' | 'description'>[]>([]);
@@ -14,6 +14,11 @@
 	let showCompose = $state(false);
 
 	onMount(load);
+
+	$effect(() => {
+		refreshKey;
+		load();
+	});
 
 	async function load() {
 		loading = true;

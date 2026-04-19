@@ -19,6 +19,7 @@
 
 	let showMembers = $state(false);
 	let activeTab = $state('tasks');
+	let notesRefreshKey = $state(0);
 
 	let isCoordinator = $derived(userRole.role === 'coordinator');
 	let canManageTasks = $derived(userRole.role === 'coordinator' || userRole.role === 'gov_coordinator');
@@ -89,7 +90,7 @@
 			<div class="relative flex-1 overflow-hidden">
 				<TabsContent value="tasks" class="absolute inset-0 m-0 overflow-y-auto p-0">
 					<div class="mx-auto max-w-3xl">
-						<TasksTab patientId={patient.id} {userId} {canManageTasks} />
+						<TasksTab patientId={patient.id} {userId} {canManageTasks} onNoteAdded={() => notesRefreshKey++} />
 					</div>
 				</TabsContent>
 
@@ -101,7 +102,7 @@
 
 				<TabsContent value="notes" class="absolute inset-0 m-0 overflow-y-auto p-0">
 					<div class="mx-auto max-w-3xl">
-						<NotesTab patientId={patient.id} {userId} />
+						<NotesTab patientId={patient.id} {userId} refreshKey={notesRefreshKey} />
 					</div>
 				</TabsContent>
 			</div>
