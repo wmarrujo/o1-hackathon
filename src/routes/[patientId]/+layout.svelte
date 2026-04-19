@@ -143,6 +143,13 @@
 						<FileText class="h-5 w-5" />
 						Notes
 					</a>
+					<a
+						href="/{data.patient.id}/checkout"
+						class="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs transition-colors {isActive('checkout') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
+					>
+						<ClipboardCheck class="h-5 w-5" />
+						Check-out
+					</a>
 				{/if}
 			</div>
 		</div>
