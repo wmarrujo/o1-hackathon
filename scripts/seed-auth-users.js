@@ -699,9 +699,17 @@ const { error: noteErr } = await supabase.from('notes').upsert([
 		content: 'Spoke with Joyce\'s daughter Dianne this afternoon. She\'s planning to attend the Dr. Smith appointment on the 22nd. Please make sure Joyce is dressed and ready by 1:30pm.',
 		created_at: '2026-04-18T11:00:00+00:00'
 	},
+	{
+		id: '00000000-0000-0000-0005-000000000011',
+		patient_id: PATIENT_ID,
+		task_id: '00000000-0000-0000-0003-000000000014',
+		author_id: KELSEY,
+		content: 'Glucose was 118 before breakfast — nicely in range. Joyce was cheerful this morning and asked to listen to the hymn station while she ate. Finished most of her oatmeal.',
+		created_at: '2026-04-19T12:50:00+00:00'
+	},
 ], { onConflict: 'id' });
 if (noteErr) { console.error('notes:', noteErr.message); process.exit(1); }
-console.log('✓ notes (10 total)');
+console.log('✓ notes (11 total)');
 
 console.log('\nSign in at http://localhost:5173 with password: password123');
 console.log('  Coordinator: dianne@demo.com');

@@ -40,10 +40,14 @@ async function handle(patientId: string, request: Request) {
   const startIso = startOfToday.toISOString()
   const endIso = endOfToday.toISOString()
 
+  const nowIso = now.toISOString()
+
   const [
     { data: notesRaw },
     { data: checkInsRaw },
     { data: completedRaw },
+    { data: missedRaw },
+    { data: upcomingTasksRaw },
     { data: eventsRaw },
     { data: usersRaw },
   ] = await Promise.all([
@@ -70,6 +74,21 @@ async function handle(patientId: string, request: Request) {
       .eq('complete', true)
       .gte('completed_at', startIso)
       .lt('completed_at', endIso),
+    supabase
+      .from('tasks')
+      .select('description, due_time, assignee_id')
+      .eq('patient_id', patientId)
+      .eq('complete', false)
+      .lt('due_time', nowIso)
+      .order('due_time', { ascending: true }),
+    supabase
+      .from('tasks')
+      .select('description, due_time, assignee_id')
+      .eq('patient_id', patientId)
+      .eq('complete', false)
+      .gte('due_time', nowIso)
+      .lt('due_time', endIso)
+      .order('due_time', { ascending: true }),
     supabase
       .from('schedule_events')
       .select('title, event_type, dtstart, dtend, assigned_user_id, status')
@@ -101,6 +120,16 @@ async function handle(patientId: string, request: Request) {
       completed_at: t.completed_at,
       completed_by_name: t.completed_by ? userName.get(t.completed_by) ?? null : null,
     })),
+    missed: (missedRaw ?? []).map((t) => ({
+      description: t.description,
+      due_time: t.due_time,
+      assignee_name: t.assignee_id ? userName.get(t.assignee_id) ?? null : null,
+    })),
+    upcomingTasks: (upcomingTasksRaw ?? []).map((t) => ({
+      description: t.description,
+      due_time: t.due_time,
+      assignee_name: t.assignee_id ? userName.get(t.assignee_id) ?? null : null,
+    })),
     events: (eventsRaw ?? []).map((e) => ({
       title: e.title,
       event_type: e.event_type,
@@ -118,6 +147,8 @@ function buildAgentInput(ctx: {
   notes: { content: string; author: string; created_at: string }[]
   checkIns: { type: string; user: string; note: string | null; ai_summary: string | null; created_at: string }[]
   completed: { description: string; completed_at: string | null; completed_by_name: string | null }[]
+  missed: { description: string; due_time: string | null; assignee_name: string | null }[]
+  upcomingTasks: { description: string; due_time: string | null; assignee_name: string | null }[]
   events: { title: string; event_type: string; dtstart: string; dtend: string; assignee_name: string | null }[]
 }): string {
   const parts: string[] = []
@@ -145,6 +176,16 @@ function buildAgentInput(ctx: {
   parts.push(`\nTasks completed today (${ctx.completed.length}):`)
   for (const t of ctx.completed) {
     parts.push(`- "${t.description}" by ${t.completed_by_name ?? 'unknown'} at ${t.completed_at}`)
+  }
+
+  parts.push(`\nMissed / overdue tasks still incomplete (${ctx.missed.length}):`)
+  for (const t of ctx.missed) {
+    parts.push(`- "${t.description}" was due ${t.due_time}, assigned to ${t.assignee_name ?? 'unassigned'}`)
+  }
+
+  parts.push(`\nTasks still pending later today (${ctx.upcomingTasks.length}):`)
+  for (const t of ctx.upcomingTasks) {
+    parts.push(`- "${t.description}" due ${t.due_time}, assigned to ${t.assignee_name ?? 'unassigned'}`)
   }
 
   parts.push(`\nScheduled events today (${ctx.events.length}):`)
