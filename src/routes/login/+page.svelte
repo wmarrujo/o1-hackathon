@@ -5,6 +5,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import SalusLogo from '$lib/components/SalusLogo.svelte';
 
 	let email = $state('');
 	let password = $state('');
@@ -28,8 +29,10 @@
 <div class="flex min-h-screen items-center justify-center bg-background p-4">
 	<Card class="w-full max-w-sm">
 		<CardHeader class="text-center">
-			<div class="mb-2 text-4xl">🏥</div>
-			<CardTitle class="font-display text-2xl">Salus</CardTitle>
+			<div class="mb-3 flex justify-center">
+				<SalusLogo class="h-20 w-20" />
+			</div>
+			<CardTitle class="font-display text-3xl tracking-wide">Salus</CardTitle>
 			<CardDescription>Collaborative care coordination for patients and families</CardDescription>
 		</CardHeader>
 		<CardContent>
