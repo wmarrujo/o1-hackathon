@@ -53,7 +53,10 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
 
   const proposeRes = await fetch('/api/propose-changes', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: request.headers.get('authorization') ?? '',
+    },
     body: JSON.stringify(parsed),
   })
 

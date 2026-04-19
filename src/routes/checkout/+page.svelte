@@ -3,6 +3,12 @@
   import { Button } from '$lib/components/ui/button'
   import { Card, CardContent } from '$lib/components/ui/card'
   import { Mic, Square, Send, Loader2 } from 'lucide-svelte'
+  import { supabase } from '$lib/supabaseClient'
+
+  async function authHeader(): Promise<string> {
+    const { data } = await supabase.auth.getSession()
+    return data.session ? `Bearer ${data.session.access_token}` : ''
+  }
 
   let isRecording = $state(false)
   let transcript = $state('')
@@ -48,6 +54,7 @@
 
       const res = await fetch('/speech-to-text/api', {
         method: 'POST',
+        headers: { Authorization: await authHeader() },
         body: formData,
       })
 
@@ -68,7 +75,7 @@
     try {
       const res = await fetch('/checkout/api', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: await authHeader() },
         body: JSON.stringify({ text: transcript }),
       })
 
